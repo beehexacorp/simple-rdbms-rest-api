@@ -6,6 +6,5 @@ namespace TKSoutdoorsparts.Helpers
     {
         void GetDataSetFromAdapter(DataSet dataSet, string connectionString, string queryString);
         void GetSchema(DataSet dataSet, string connectionString);
-
     }
 }

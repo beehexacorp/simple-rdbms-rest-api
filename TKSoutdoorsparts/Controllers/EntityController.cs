@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Odbc;
 using System.Text.Json;
-using TKSoutdoorsparts.Adapter;
+using TKSoutdoorsparts.Helpers;
+using TKSoutdoorsparts.Settings;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,47 +17,82 @@ namespace TKSoutdoorsparts.Controllers
     public class EntityController : ControllerBase
     {
         private readonly IOdbcDataHelper _odbcDataHelper;
-        public EntityController (IOdbcDataHelper odbcDataHelper) {
+        private readonly AppSettings _appSettings;
+
+
+        public EntityController (IOdbcDataHelper odbcDataHelper, AppSettings appSettings) {
             _odbcDataHelper = odbcDataHelper;
+            _appSettings = appSettings;
         }  
-        // GET: api/<ValuesController>
+        // GET: api/<EntityController>
         [HttpGet]
-        public IActionResult Get(
-            [FromQuery] string tableName = "INV",
-            [FromQuery] int? offset = 1,
-            [FromQuery] int? limit = 100)
+        public IActionResult GetAll(
+            [FromQuery] string tableName,
+            [FromQuery] int? offset,
+            [FromQuery] int? limit,
+            [FromQuery] string? orderBy)
         {
             //var connection = _dbFactory.CreateConnection();
             if (offset < 1)
             {
                 throw new InvalidDataException("Offset must be > 0");
             }
-            var query = $"SELECT TOP {limit} START AT {offset} * FROM {tableName}";
+            var orderByQuery = "";
+            if (orderBy != null)
+            {
+                orderByQuery = $"ORDER BY {orderBy} DESC";
+            }
+            var query = $"SELECT TOP {limit ?? 10 } START AT {offset ?? 1} * FROM {tableName} {orderByQuery}";
             var dataSet = new DataSet();
-            var connectionString = "DRIVER=SQL Anywhere 16;HOST=127.0.0.1:2638;DATABASE=enterprise;Trusted_Connection=Yes;Uid=EXT;Pwd=EXT";
+            var connectionString = _appSettings.ODBCConnectionString;
             _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
             DataTable dt = dataSet.Tables[0];
             var jsonResult = JsonConvert.SerializeObject(dt);
-
             return Ok(jsonResult);
-        } 
-
-        // POST api/<ValuesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        }
+        // GET: api/<EntityController>
+        [HttpGet("listId")]
+        public IActionResult GetListId(
+            [FromQuery] int? limit,
+            [FromQuery] int? offset,
+            [FromQuery] string idColumn,
+            [FromQuery] string tableName,
+            [FromQuery] string? orderBy)
         {
+            //var connection = _dbFactory.CreateConnection();
+            if (offset < 1)
+            {
+                throw new InvalidDataException("Offset must be > 0");
+            }
+            var orderByQuery = "";
+            if (orderBy != null)
+            {
+                orderByQuery = $"ORDER BY {orderBy} DESC";
+            }
+            var query = $"SELECT TOP {limit ?? 10} START AT {offset ?? 1} {idColumn} FROM {tableName} {orderByQuery}";
+            var dataSet = new DataSet();
+            var connectionString = _appSettings.ODBCConnectionString;
+            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
+            DataTable dt = dataSet.Tables[0];
+            var jsonResult = JsonConvert.SerializeObject(dt);
+            return Ok(jsonResult);
         }
 
-        // PUT api/<ValuesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet("id")]
+        public IActionResult Get(
+             [FromQuery] string tableName,
+             [FromQuery] string keyName,
+             [FromQuery] string keyValue)
         {
+            //var connection = _dbFactory.CreateConnection();
+            var query = $"SELECT * FROM {tableName} WHERE {keyName} = '{keyValue}'";
+            var dataSet = new DataSet();
+            var connectionString = _appSettings.ODBCConnectionString;
+            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
+            DataTable dt = dataSet.Tables[0];
+            var jsonResult = JsonConvert.SerializeObject(dt);
+            return Ok(jsonResult);
         }
 
-        // DELETE api/<ValuesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

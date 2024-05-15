@@ -8,7 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="hexasync.infrastructure.dotnetenv" Version="1.2.72" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
 

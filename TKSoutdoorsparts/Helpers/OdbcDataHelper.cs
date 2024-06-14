@@ -29,25 +29,5 @@ namespace TKSoutdoorsparts.Helpers
 
             }
         }
-
-
-        public void InsertSingleRow (DataSet dataSet,Dictionary<string,string> table, string tableName, string connectionString, string queryString)
-        {
-            using (OdbcConnection connection = new OdbcConnection(connectionString))
-            {
-                connection.Open();
-                OdbcDataAdapter adapter = new OdbcDataAdapter(queryString, connection);
-                adapter.Fill(dataSet);
-                foreach (var item in table)
-                {
-                   var newRow = dataSet.Tables[0].NewRow();
-                    newRow[item.Key] = item.Value;
-                    dataSet.Tables[0].Rows.Add(newRow);
-                }
-                new OdbcCommandBuilder(adapter);
-                adapter.Update(dataSet);
-            }
-        }
-
     }
 }

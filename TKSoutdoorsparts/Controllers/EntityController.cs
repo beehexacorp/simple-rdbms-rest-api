@@ -18,11 +18,12 @@ namespace TKSoutdoorsparts.Controllers
     {
         private readonly IOdbcDataHelper _odbcDataHelper;
         private readonly AppSettings _appSettings;
+        private readonly ILogger<EntityController> _logger;
 
-
-        public EntityController (IOdbcDataHelper odbcDataHelper, AppSettings appSettings) {
+        public EntityController (IOdbcDataHelper odbcDataHelper, AppSettings appSettings, ILogger<EntityController> logger) {
             _odbcDataHelper = odbcDataHelper;
             _appSettings = appSettings;
+            _logger = logger;
         }  
         // GET: api/<EntityController>
         [HttpGet]
@@ -32,7 +33,7 @@ namespace TKSoutdoorsparts.Controllers
             [FromQuery] int? limit,
             [FromQuery] string? orderBy)
         {
-            //var connection = _dbFactory.CreateConnection();
+            _logger.LogInformation("GetAll Api started at:" + DateTime.Now);
             if (offset < 1)
             {
                 throw new InvalidDataException("Offset must be > 0");
@@ -42,6 +43,7 @@ namespace TKSoutdoorsparts.Controllers
             {
                 orderByQuery = $"ORDER BY {orderBy} DESC";
             }
+
             var query = $"SELECT TOP {limit ?? 10 } START AT {offset ?? 1} * FROM {tableName} {orderByQuery}";
             var dataSet = new DataSet();
             var connectionString = _appSettings.ODBCConnectionString;

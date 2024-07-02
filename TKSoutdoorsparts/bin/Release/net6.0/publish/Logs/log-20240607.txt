@@ -1,6 +1,0 @@
-2024-06-07T15:42:00.7742020+07:00  [INF] Now listening on: "http://localhost:5000" (d826f4b8)
-2024-06-07T15:42:00.7764531+07:00  [INF] Now listening on: "https://localhost:5001" (d826f4b8)
-2024-06-07T15:42:00.7795669+07:00  [INF] Application started. Press Ctrl+C to shut down. (dcaefe54)
-2024-06-07T15:42:00.7796354+07:00  [INF] Hosting environment: "Production" (c3307c92)
-2024-06-07T15:42:00.7796490+07:00  [INF] Content root path: "C:\Users\PeKieuKieu\source\repos\TKSoutdoorsparts\TKSoutdoorsparts\bin\Release\net6.0\publish\" (b5d60022)
-2024-06-07T15:42:07.1967407+07:00 0HN46PMRAON53:00000002 [INF] GetAll Api started at:6/7/2024 3:42:07 PM (2577d695)

@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\PeKieuKieu\source\repos\TKSoutdoorsparts\TKSoutdoorsparts\bin\Release\net6.0\publish\</_PublishTargetUrl>
-    <History>True|2024-06-07T08:15:33.7318804Z;True|2024-06-07T15:15:14.5528319+07:00;True|2024-06-07T15:14:50.8819873+07:00;True|2024-06-07T15:10:31.2221042+07:00;True|2024-06-07T10:36:45.8648628+07:00;</History>
+    <History>True|2024-07-01T04:50:40.9025925Z;True|2024-06-07T15:15:33.7318804+07:00;True|2024-06-07T15:15:14.5528319+07:00;True|2024-06-07T15:14:50.8819873+07:00;True|2024-06-07T15:10:31.2221042+07:00;True|2024-06-07T10:36:45.8648628+07:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

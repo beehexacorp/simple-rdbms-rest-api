@@ -1,1 +1,5 @@
 application/cache
+/TKSoutdoorsparts/bin
+/TKSoutdoorsparts/obj
+/TKSoutdoorsparts/Properties
+/.vs

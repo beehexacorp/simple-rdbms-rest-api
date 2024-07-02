@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.Odbc;
+using TKSoutdoorsparts.Controllers;
 
 namespace TKSoutdoorsparts.Helpers
 {
@@ -9,10 +10,18 @@ namespace TKSoutdoorsparts.Helpers
         {
             using (OdbcConnection connection = new OdbcConnection(connectionString))
             {
-                OdbcDataAdapter adapter = new OdbcDataAdapter(queryString, connection);
+                try
+                {
+                    OdbcDataAdapter adapter = new OdbcDataAdapter(queryString, connection);
                     connection.Open();
                     adapter.Fill(dataSet);
                     connection.Close();
+                }
+                catch (Exception)
+                {
+                    throw;
+                   
+                }
             }
         }
 
@@ -20,12 +29,19 @@ namespace TKSoutdoorsparts.Helpers
         {
             using (OdbcConnection connection = new OdbcConnection(connectionString))
             {
-                connection.Open();
-                DataTable tables = connection.GetSchema("Tables");
-                DataTable columns = connection.GetSchema("Columns");
-                dataSet.Tables.Add(tables);
-                dataSet.Tables.Add(columns);
-                connection.Close();
+                try
+                {
+                    connection.Open();
+                    DataTable tables = connection.GetSchema("Tables");
+                    DataTable columns = connection.GetSchema("Columns");
+                    dataSet.Tables.Add(tables);
+                    dataSet.Tables.Add(columns);
+                    connection.Close();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
 
             }
         }

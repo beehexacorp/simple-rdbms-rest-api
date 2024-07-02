@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+248b01f554f83432d137ef56342b3d4338dfa9b8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc3d849bee6824c3b839bb951df1bc4fab755378")]
 [assembly: System.Reflection.AssemblyProductAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

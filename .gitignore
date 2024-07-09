@@ -1,4 +1,5 @@
+**/bin
 /bin
+**/obj
 /obj
-/.vs
-*.dll
+**/.vs

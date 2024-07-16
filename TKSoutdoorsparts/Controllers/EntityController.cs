@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Odbc;
-using System.Text.Json;
+using DbType = TKSoutdoorsparts.Constants.DbType;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
 
@@ -16,83 +13,30 @@ namespace TKSoutdoorsparts.Controllers
 
     public class EntityController : ControllerBase
     {
-        private readonly IOdbcDataHelper _odbcDataHelper;
-        private readonly AppSettings _appSettings;
+        private readonly IDataHelper _odbcDataHelper;
+        private readonly IAppSettings _appSettings;
 
 
-        public EntityController (IOdbcDataHelper odbcDataHelper, AppSettings appSettings) {
+        public EntityController(IDataHelper odbcDataHelper, IAppSettings appSettings)
+        {
             _odbcDataHelper = odbcDataHelper;
             _appSettings = appSettings;
-        }  
-        // GET: api/<EntityController>
-        [HttpGet]
-        public IActionResult GetAll(
-            [FromQuery] string tableName,
-            [FromQuery] int? offset,
-            [FromQuery] int? limit,
-            [FromQuery] string? orderBy)
-        {
-            //var connection = _dbFactory.CreateConnection();
-            if (offset < 1)
-            {
-                throw new InvalidDataException("Offset must be > 0");
-            }
-            var orderByQuery = "";
-            if (orderBy != null)
-            {
-                orderByQuery = $"ORDER BY {orderBy} DESC";
-            }
-            var query = $"SELECT TOP {limit ?? 10 } START AT {offset ?? 1} * FROM {tableName} {orderByQuery}";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
-            return Ok(jsonResult);
-        }
-        // GET: api/<EntityController>
-        [HttpGet("listId")]
-        public IActionResult GetListId(
-            [FromQuery] int? limit,
-            [FromQuery] int? offset,
-            [FromQuery] string idColumn,
-            [FromQuery] string tableName,
-            [FromQuery] string? orderBy)
-        {
-            //var connection = _dbFactory.CreateConnection();
-            if (offset < 1)
-            {
-                throw new InvalidDataException("Offset must be > 0");
-            }
-            var orderByQuery = "";
-            if (orderBy != null)
-            {
-                orderByQuery = $"ORDER BY {orderBy} DESC";
-            }
-            var query = $"SELECT TOP {limit ?? 10} START AT {offset ?? 1} {idColumn} FROM {tableName} {orderByQuery}";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
-            return Ok(jsonResult);
         }
 
-        [HttpGet("id")]
-        public IActionResult Get(
-             [FromQuery] string tableName,
-             [FromQuery] string keyName,
-             [FromQuery] string keyValue)
+        
+        [HttpPost("list")]
+        public IActionResult GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
         {
-            //var connection = _dbFactory.CreateConnection();
-            var query = $"SELECT * FROM {tableName} WHERE {keyName} = '{keyValue}'";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
+            IDictionary<string, object> dict = new Dictionary<string, object>();
+            var dt = _odbcDataHelper.GetData(query, @params, dbType);
+            var result = dt.Result;
+            var jsonResult = JsonConvert.SerializeObject(result);
             return Ok(jsonResult);
         }
 
     }
 }
+
+// select * from cars order by id limit @limit offset @offset
+
+// select * from cars order by id offset @offset ROWS FETCH NEXT @limit ROWS ONLY

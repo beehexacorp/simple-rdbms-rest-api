@@ -1,5 +1,7 @@
-../.vs/
-bin/
-obj/
+**/bin
 /bin
+**/obj
 /obj
+**/.vs
+TKSoutdoorsparts/obj/
+ .vs/TKSoutdoorsparts/

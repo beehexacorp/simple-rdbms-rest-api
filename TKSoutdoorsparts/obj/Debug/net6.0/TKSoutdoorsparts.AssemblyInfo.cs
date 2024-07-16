@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1bede2d8998877e9f82877e79bc32aae7d9aad76")]
 [assembly: System.Reflection.AssemblyProductAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TKSoutdoorsparts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

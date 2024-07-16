@@ -1,1 +1,7 @@
-application/cache
+**/bin
+/bin
+**/obj
+/obj
+**/.vs
+TKSoutdoorsparts/obj/
+ .vs/TKSoutdoorsparts/

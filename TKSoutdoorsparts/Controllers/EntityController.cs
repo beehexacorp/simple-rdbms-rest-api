@@ -28,7 +28,8 @@ namespace TKSoutdoorsparts.Controllers
         public IActionResult GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
         {
             IDictionary<string, object> dict = new Dictionary<string, object>();
-            var dt = _odbcDataHelper.GetData(query, @params, dbType);
+            var @param = JsonConvert.SerializeObject(@params);
+            var dt = _odbcDataHelper.GetData(query, @param, dbType);
             var result = dt.Result;
             var jsonResult = JsonConvert.SerializeObject(result);
             return Ok(jsonResult);

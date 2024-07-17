@@ -1,5 +1,5 @@
 using hexasync.infrastructure.dotnetenv;
-using TKSoutdoorsparts;
+using TKSoutdoorsparts.Factory;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
 
@@ -10,9 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEnvReader, EnvReader>();
-builder.Services.AddTransient<IOdbcDataHelper, OdbcDataHelper>();
-builder.Services.AddSingleton<AppSettings, AppSettings>();
-
+builder.Services.AddSingleton<IAppSettings, AppSettings>();
+builder.Services.AddSingleton<IDataHelper, DataHelper>();
+builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -12,12 +12,12 @@ namespace TKSoutdoorsparts.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 
-public class EntityController : ControllerBase
+public class SqlController : ControllerBase
 {
     private readonly IAppSettings _appSettings;
     private readonly IServiceProvider _serviceProvider;
 
-    public EntityController(IAppSettings appSettings, IServiceProvider serviceProvider)
+    public SqlController(IAppSettings appSettings, IServiceProvider serviceProvider)
     {
         _appSettings = appSettings;
         _serviceProvider = serviceProvider;
@@ -28,12 +28,9 @@ public class EntityController : ControllerBase
     // /api/sql/query
     [HttpPost("query")]
     public async Task<IActionResult> GetData(
-        [FromBody] DbType dbType,
-        [FromBody, Required] string tableName,
+        [FromBody, Required] string query,
         [FromBody, Required] Dictionary<string, object> @params,
-        [FromBody] IEnumerable<string>? fields = null,
-        [FromBody] IEnumerable<string>? conditions = null,
-        [FromBody] string? orderBy = null)
+        [FromBody, Required] DbType dbType)
     {
         if (!ModelState.IsValid)
         {
@@ -42,17 +39,6 @@ public class EntityController : ControllerBase
         // TODO: use regular expression to throw error for UPDATE, INSERT, DELETE, DROP commands
         // TODO: use regular expression to throw error for queries that combine string inside, e.g.: select * from x where a = '1'
         IDataHelper dbHelper;
-        @params = @params ?? new Dictionary<string, object>();
-        if (!@params.ContainsKey("limit"))
-        {
-            throw new ArgumentNullException("The limit param is required");
-        }
-
-        if (!@params.ContainsKey("offset"))
-        {
-            throw new ArgumentNullException("The offset param  is required");
-        }
-
         switch (dbType)
         {
             case DbType.SQLAnywhere:
@@ -67,8 +53,7 @@ public class EntityController : ControllerBase
             default:
                 throw new NotImplementedException($"The dbType {dbType} is not supported yet.");
         }
-        var sql = dbHelper.BuildQuery(tableName, fields, conditions, orderBy, @params);
-        var result = await dbHelper.GetData(sql, @params);
+        var result = await dbHelper.GetData(query, @params);
         return Ok(result);
     }
 }

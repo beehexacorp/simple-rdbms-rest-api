@@ -16,25 +16,18 @@ namespace TKSoutdoorsparts.Controllers
         private readonly IDataHelper _odbcDataHelper;
         private readonly IAppSettings _appSettings;
 
-
         public EntityController(IDataHelper odbcDataHelper, IAppSettings appSettings)
         {
             _odbcDataHelper = odbcDataHelper;
             _appSettings = appSettings;
         }
-
         
         [HttpPost("list")]
-        public IActionResult GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
+        public async Task<IActionResult>  GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
         {
-            IDictionary<string, object> dict = new Dictionary<string, object>();
-            var @param = JsonConvert.SerializeObject(@params);
-            var dt = _odbcDataHelper.GetData(query, @param, dbType);
-            var result = dt.Result;
-            var jsonResult = JsonConvert.SerializeObject(result);
-            return Ok(jsonResult);
+            var result = await _odbcDataHelper.GetData(query, @params, dbType);
+            return Ok(result);
         }
-
     }
 }
 

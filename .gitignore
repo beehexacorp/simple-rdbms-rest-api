@@ -1,1 +1,4 @@
 application/cache
+.vscode
+**/obj
+**/bin

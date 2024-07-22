@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace TKSoutdoorsparts.Factory
 {
-    public class ConnectionFactory :IConnectionFactory
+    public class ConnectionFactory : IConnectionFactory
     {
 
         private readonly IAppSettings _appSettings;
@@ -19,12 +19,14 @@ namespace TKSoutdoorsparts.Factory
         {
             switch (dbType)
             {
-                case DbType.ODBC:
-                    return new OdbcConnection(_appSettings.ODBCConnectionString);
+                case DbType.SQLAnywhere:
+                    return new OdbcConnection(_appSettings.ConnectionString);
+                case DbType.ORACLE:
+                    return new OdbcConnection(_appSettings.ConnectionString);
                 case DbType.POSTGRES:
-                    return new NpgsqlConnection(_appSettings.NpgsqlConnectionString);
+                    return new NpgsqlConnection(_appSettings.ConnectionString);
                 case DbType.SQL_SERVER:
-                    return new SqlConnection(_appSettings.SqlServerConnectionString);
+                    return new SqlConnection(_appSettings.ConnectionString);
                 default:
                     throw new NotImplementedException($"Dbtype {dbType} is not supported");
             }

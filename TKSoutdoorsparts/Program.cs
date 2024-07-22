@@ -11,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEnvReader, EnvReader>();
 builder.Services.AddSingleton<IAppSettings, AppSettings>();
-builder.Services.AddSingleton<IDataHelper, DataHelper>();
+builder.Services.AddSingleton<IDataHelper, SQLAnywhereDataHelper>();
+builder.Services.AddSingleton<IDataHelper, PostgresDataHelper>();
 builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
 var app = builder.Build();
 

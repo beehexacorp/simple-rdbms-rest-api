@@ -13,19 +13,34 @@ namespace TKSoutdoorsparts.Controllers
 
     public class EntityController : ControllerBase
     {
-        private readonly IDataHelper _odbcDataHelper;
         private readonly IAppSettings _appSettings;
+        private readonly IServiceProvider _serviceProvider;
 
-        public EntityController(IDataHelper odbcDataHelper, IAppSettings appSettings)
+        public EntityController(IAppSettings appSettings, IServiceProvider serviceProvider)
         {
-            _odbcDataHelper = odbcDataHelper;
             _appSettings = appSettings;
+            _serviceProvider = serviceProvider;
         }
-        
+
         [HttpPost("list")]
-        public async Task<IActionResult>  GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
+        public async Task<IActionResult> GetData(string query, [FromBody] Dictionary<string, object> @params, DbType dbType)
         {
-            var result = await _odbcDataHelper.GetData(query, @params, dbType);
+            IDataHelper dbHelper;
+            switch (dbType)
+            {
+                case DbType.SQLAnywhere:
+                    dbHelper = _serviceProvider.GetRequiredService<SQLAnywhereDataHelper>();
+                    break;
+                case DbType.POSTGRES:
+                    dbHelper = _serviceProvider.GetRequiredService<PostgresDataHelper>();
+                    break;
+                case DbType.MYSQL:
+                    dbHelper = _serviceProvider.GetRequiredService<MySQLDataHelper>();
+                    break;
+                default:
+                    throw new NotImplementedException($"The dbType {dbType} is not supported yet.");
+            }
+            var result = await dbHelper.GetData(query, @params);
             return Ok(result);
         }
     }

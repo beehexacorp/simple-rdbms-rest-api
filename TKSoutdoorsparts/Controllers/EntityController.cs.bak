@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
@@ -50,19 +49,25 @@ public class EntityController : ControllerBase
 
         if (!@params.ContainsKey("offset"))
         {
-            throw new ArgumentNullException("The offset param  is required");
+            throw new ArgumentNullException("The offset param is required");
         }
 
         switch (dbType)
         {
             case DbType.SQLAnywhere:
-                dbHelper = _serviceProvider.GetRequiredService<SQLAnywhereDataHelper>();
+                dbHelper = _serviceProvider.GetRequiredService<SqlAnywhereDataHelper>();
                 break;
             case DbType.POSTGRES:
                 dbHelper = _serviceProvider.GetRequiredService<PostgresDataHelper>();
                 break;
             case DbType.MYSQL:
-                dbHelper = _serviceProvider.GetRequiredService<MySQLDataHelper>();
+                dbHelper = _serviceProvider.GetRequiredService<MySqlDataHelper>();
+                break;
+            case DbType.SQL_SERVER:
+                dbHelper = _serviceProvider.GetRequiredService<SqlServerDataHelper>();
+                break;
+            case DbType.ORACLE:
+                dbHelper = _serviceProvider.GetRequiredService<OracleDataHelper>();
                 break;
             default:
                 throw new NotImplementedException($"The dbType {dbType} is not supported yet.");

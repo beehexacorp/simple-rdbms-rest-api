@@ -15,4 +15,21 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Dapper">
+      <HintPath>..\..\..\.nuget\packages\dapper\2.1.35\lib\net7.0\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetEnv">
+      <HintPath>..\..\..\.nuget\packages\dotnetenv\3.0.0\lib\netstandard1.3\DotNetEnv.dll</HintPath>
+    </Reference>
+    <Reference Include="hexasync.infrastructure.dotnetenv">
+      <HintPath>..\..\..\.nuget\packages\hexasync.infrastructure.dotnetenv\1.2.72\lib\net6.0\hexasync.infrastructure.dotnetenv.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\..\..\.nuget\packages\npgsql\8.0.3\lib\net8.0\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.Odbc">
+      <HintPath>..\..\..\.nuget\packages\system.data.odbc\9.0.0-preview.6.24327.7\lib\net8.0\System.Data.Odbc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

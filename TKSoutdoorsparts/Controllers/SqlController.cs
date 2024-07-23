@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
@@ -28,36 +27,27 @@ public class SqlController : ControllerBase
     // /api/sql/query
     [HttpPost("query")]
     public async Task<IActionResult> GetData(
-        [FromBody, Required] string query,
-        [FromBody, Required] Dictionary<string, object> @params,
-        [FromBody, Required] DbType dbType)
+        [Required] string query,
+        [FromBody, Required] Dictionary<string, object>? @params,
+        [Required] DbType dbType)
     {
         if (!ModelState.IsValid)
         {
             return UnprocessableEntity(ModelState);
         }
+        
         // TODO: use regular expression to throw error for UPDATE, INSERT, DELETE, DROP commands
         // TODO: use regular expression to throw error for queries that combine string inside, e.g.: select * from x where a = '1'
-        IDataHelper dbHelper;
-        switch (dbType)
+        IDataHelper? dbHelper = dbType switch
         {
-            case DbType.SQLAnywhere:
-                dbHelper = _serviceProvider.GetRequiredService<SQLAnywhereDataHelper>();
-                break;
-            case DbType.POSTGRES:
-                dbHelper = _serviceProvider.GetRequiredService<PostgresDataHelper>();
-                break;
-            case DbType.MYSQL:
-                dbHelper = _serviceProvider.GetRequiredService<MySQLDataHelper>();
-                break;
-            default:
-                throw new NotImplementedException($"The dbType {dbType} is not supported yet.");
-        }
+            DbType.SQLAnywhere => _serviceProvider.GetRequiredService<SqlAnywhereDataHelper>(),
+            DbType.POSTGRES => _serviceProvider.GetRequiredService<PostgresDataHelper>(),
+            DbType.MYSQL => _serviceProvider.GetRequiredService<MySqlDataHelper>(),
+            DbType.SQL_SERVER => _serviceProvider.GetRequiredService<SqlServerDataHelper>(),
+            DbType.ORACLE => _serviceProvider.GetRequiredService<OracleDataHelper>(),
+            _ => throw new NotImplementedException($"The dbType {dbType} is not supported yet.")
+        };
         var result = await dbHelper.GetData(query, @params);
         return Ok(result);
     }
 }
-
-// select * from cars order by id limit @limit offset @offset
-
-// select * from cars order by id offset @offset ROWS FETCH NEXT @limit ROWS ONLY

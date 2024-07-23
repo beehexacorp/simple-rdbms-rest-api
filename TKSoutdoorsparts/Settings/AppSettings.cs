@@ -1,4 +1,5 @@
 ﻿using hexasync.infrastructure.dotnetenv;
+using IEnvReader = hexasync.infrastructure.dotnetenv.IEnvReader;
 
 namespace TKSoutdoorsparts.Settings
 {

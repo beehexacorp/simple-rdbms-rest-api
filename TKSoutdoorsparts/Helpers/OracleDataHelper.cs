@@ -9,7 +9,7 @@ public class OracleDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.ORACLE;
 
-    public override string BuildQuery(string tableName, IEnumerable<string> fields, IEnumerable<string> conditions, string orderBy, Dictionary<string, object> @params)
+    public override string BuildQuery(string tableName, IEnumerable<string>? fields, IEnumerable<string>? conditions, string? orderBy, Dictionary<string, object> @params)
     {
         throw new NotImplementedException();
     }

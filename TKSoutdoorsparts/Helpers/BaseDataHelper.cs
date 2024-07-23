@@ -16,10 +16,9 @@ public abstract class BaseDataHelper : IDataHelper
 
     public abstract DbType DbType { get; }
 
-    public abstract string BuildQuery(string tableName, IEnumerable<string> fields, IEnumerable<string> conditions, string orderBy, Dictionary<string, object> @params);
-
-
-    public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(string query, Dictionary<string, object> @params)
+    public abstract string BuildQuery(string tableName, IEnumerable<string>? fields, IEnumerable<string>? conditions, string? orderBy, Dictionary<string, object> @params);
+    
+    public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(string query, Dictionary<string, object>? @params)
     {
         using IDbConnection connection = ConnectionFactory.CreateConnection(DbType);
         var result = await connection.QueryAsync<dynamic>(query, @params);

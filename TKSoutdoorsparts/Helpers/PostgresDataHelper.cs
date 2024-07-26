@@ -1,7 +1,6 @@
-﻿
-using System.Data;
+﻿using System.Data;
 using TKSoutdoorsparts.Factory;
-using Dapper;
+using TKSoutdoorsparts.Models;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
@@ -13,18 +12,19 @@ public class PostgresDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.POSTGRES;
 
-    public override string BuildQuery(string tableName, IEnumerable<string>? fields, IEnumerable<string>? conditions, string? orderBy, Dictionary<string, object>? @params)
+    public override string BuildQuery(EntityRequestMetadata request)
     {
-        var pgFields = fields != null && fields.Any() ? string.Join(", ", fields) : "*";
-        var pgConditions = conditions != null && conditions.Any() ? string.Join(", ", conditions.Select(c => $"{c} = @{c}")) : "";
+
+        var pgFields = request.Fields != null && request.Fields.Any() ? string.Join(", ", request.Fields) : "*";
+        var pgConditions = request.Conditions != null && request.Conditions.Any() ? string.Join(", ", request.Conditions.Select(c => $"{c} = @{c}")) : "";
         pgConditions = !string.IsNullOrWhiteSpace(pgConditions) ? $"where {pgConditions}" : "";
-        orderBy = !string.IsNullOrWhiteSpace(orderBy) ? $"order by {orderBy}" : "";
-        var query = $@"select {pgFields} 
-from {tableName} 
-{pgConditions}
-{orderBy} 
-limit @limit 
-offset @offset";
+        request.OrderBy = !string.IsNullOrWhiteSpace(request.OrderBy) ? $"order by {request.OrderBy}" : "";
+        var query = $@"SELECT {pgFields} 
+FROM {request.TableName} 
+{pgConditions} 
+{request.OrderBy} 
+LIMIT @limit 
+OFFSET @offset";
         return query;
     }
 }

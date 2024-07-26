@@ -1,4 +1,5 @@
 using TKSoutdoorsparts.Factory;
+using TKSoutdoorsparts.Models;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
@@ -9,7 +10,7 @@ public class MySqlDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.MYSQL;
 
-    public override string BuildQuery(string tableName, IEnumerable<string>? fields, IEnumerable<string>? conditions, string? orderBy, Dictionary<string, object> @params)
+    public override string BuildQuery(EntityRequestMetadata request)
     {
         throw new NotImplementedException();
     }

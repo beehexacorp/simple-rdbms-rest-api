@@ -1,11 +1,12 @@
 ﻿using TKSoutdoorsparts.Factory;
+using TKSoutdoorsparts.Models;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
 
 public interface IDataHelper
 {
-    string BuildQuery(string tableName, IEnumerable<string>? fields, IEnumerable<string>? conditions, string? orderBy, Dictionary<string, object> @params);
+    string BuildQuery(EntityRequestMetadata request);
 
     public Task<IEnumerable<IDictionary<string, object>>> GetData(string query, Dictionary<string, object>? @params);
 }

@@ -3,6 +3,7 @@ using DbType = TKSoutdoorsparts.Constants.DbType;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
 using System.ComponentModel.DataAnnotations;
+using TKSoutdoorsparts.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,9 +28,8 @@ public class SqlController : ControllerBase
     // /api/sql/query
     [HttpPost("query")]
     public async Task<IActionResult> GetData(
-        [Required] string query,
-        [FromBody, Required] Dictionary<string, object>? @params,
-        [Required] DbType dbType)
+        [FromBody, Required] QueryRequestMetadata queryRequest
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -38,6 +38,7 @@ public class SqlController : ControllerBase
         
         // TODO: use regular expression to throw error for UPDATE, INSERT, DELETE, DROP commands
         // TODO: use regular expression to throw error for queries that combine string inside, e.g.: select * from x where a = '1'
+        DbType dbType = queryRequest.DbType;
         IDataHelper? dbHelper = dbType switch
         {
             DbType.SQLAnywhere => _serviceProvider.GetRequiredService<SqlAnywhereDataHelper>(),
@@ -47,7 +48,7 @@ public class SqlController : ControllerBase
             DbType.ORACLE => _serviceProvider.GetRequiredService<OracleDataHelper>(),
             _ => throw new NotImplementedException($"The dbType {dbType} is not supported yet.")
         };
-        var result = await dbHelper.GetData(query, @params);
+        var result = await dbHelper.GetData(queryRequest.Query, queryRequest.@params);
         return Ok(result);
     }
 }

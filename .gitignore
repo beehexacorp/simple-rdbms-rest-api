@@ -1,4 +1,7 @@
-application/cache
-.vscode
-**/obj
 **/bin
+**/obj
+**/.vs
+.vscode
+**/.env
+.env
+.fake

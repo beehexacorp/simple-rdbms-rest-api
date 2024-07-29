@@ -1,8 +1,9 @@
 ﻿using hexasync.infrastructure.dotnetenv;
+using IEnvReader = hexasync.infrastructure.dotnetenv.IEnvReader;
 
 namespace TKSoutdoorsparts.Settings
 {
-    public class AppSettings
+    public class AppSettings : IAppSettings
     {
         private readonly IEnvReader _envReader;
         public AppSettings(IEnvReader envReader)
@@ -10,6 +11,6 @@ namespace TKSoutdoorsparts.Settings
             _envReader = envReader;
             EnvLoader.LoadEnvs();
         }
-        public string ODBCConnectionString => _envReader.Read("TKS_ODBC_CONNECTION_STRING");
+        public string ConnectionString => _envReader.Read("CONNECTION_STRING")!;
     }
 }

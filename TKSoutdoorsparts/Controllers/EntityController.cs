@@ -1,98 +1,67 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Odbc;
-using System.Text.Json;
+using DbType = TKSoutdoorsparts.Constants.DbType;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
+using System.ComponentModel.DataAnnotations;
+using TKSoutdoorsparts.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace TKSoutdoorsparts.Controllers
+namespace TKSoutdoorsparts.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+
+public class EntityController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    private readonly IAppSettings _appSettings;
+    private readonly IServiceProvider _serviceProvider;
 
-    public class EntityController : ControllerBase
+    public EntityController(IAppSettings appSettings, IServiceProvider serviceProvider)
     {
-        private readonly IOdbcDataHelper _odbcDataHelper;
-        private readonly AppSettings _appSettings;
+        _appSettings = appSettings;
+        _serviceProvider = serviceProvider;
+    }
+    // TODO: /api/sql/update
+    // TODO: /api/sql/insert
 
-
-        public EntityController (IOdbcDataHelper odbcDataHelper, AppSettings appSettings) {
-            _odbcDataHelper = odbcDataHelper;
-            _appSettings = appSettings;
-        }  
-        // GET: api/<EntityController>
-        [HttpGet]
-        public IActionResult GetAll(
-            [FromQuery] string tableName,
-            [FromQuery] int? offset,
-            [FromQuery] int? limit,
-            [FromQuery] string? orderBy)
+    // /api/sql/query
+    [HttpPost("query")]
+    public async Task<IActionResult> GetData(
+        [FromBody, Required] EntityRequestMetadata entityRequest
+    )
+    {
+        if (!ModelState.IsValid)
         {
-            //var connection = _dbFactory.CreateConnection();
-            if (offset < 1)
-            {
-                throw new InvalidDataException("Offset must be > 0");
-            }
-            var orderByQuery = "";
-            if (orderBy != null)
-            {
-                orderByQuery = $"ORDER BY {orderBy} DESC";
-            }
-            var query = $"SELECT TOP {limit ?? 10 } START AT {offset ?? 1} * FROM {tableName} {orderByQuery}";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
-            return Ok(jsonResult);
+            return UnprocessableEntity(ModelState);
         }
-        // GET: api/<EntityController>
-        [HttpGet("listId")]
-        public IActionResult GetListId(
-            [FromQuery] int? limit,
-            [FromQuery] int? offset,
-            [FromQuery] string idColumn,
-            [FromQuery] string tableName,
-            [FromQuery] string? orderBy)
-        {
-            //var connection = _dbFactory.CreateConnection();
-            if (offset < 1)
-            {
-                throw new InvalidDataException("Offset must be > 0");
-            }
-            var orderByQuery = "";
-            if (orderBy != null)
-            {
-                orderByQuery = $"ORDER BY {orderBy} DESC";
-            }
-            var query = $"SELECT TOP {limit ?? 10} START AT {offset ?? 1} {idColumn} FROM {tableName} {orderByQuery}";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
-            return Ok(jsonResult);
-        }
+        // TODO: use regular expression to throw error for UPDATE, INSERT, DELETE, DROP commands
+        // TODO: use regular expression to throw error for queries that combine string inside, e.g.: select * from x where a = '1'
 
-        [HttpGet("id")]
-        public IActionResult Get(
-             [FromQuery] string tableName,
-             [FromQuery] string keyName,
-             [FromQuery] string keyValue)
+        IDataHelper dbHelper;
+        DbType dbType = entityRequest.DbType;
+        switch (dbType)
         {
-            //var connection = _dbFactory.CreateConnection();
-            var query = $"SELECT * FROM {tableName} WHERE {keyName} = '{keyValue}'";
-            var dataSet = new DataSet();
-            var connectionString = _appSettings.ODBCConnectionString;
-            _odbcDataHelper.GetDataSetFromAdapter(dataSet, connectionString, query);
-            DataTable dt = dataSet.Tables[0];
-            var jsonResult = JsonConvert.SerializeObject(dt);
-            return Ok(jsonResult);
+            case DbType.SQLAnywhere:
+                dbHelper = _serviceProvider.GetRequiredService<SqlAnywhereDataHelper>();
+                break;
+            case DbType.POSTGRES:
+                dbHelper = _serviceProvider.GetRequiredService<PostgresDataHelper>();
+                break;
+            case DbType.MYSQL:
+                dbHelper = _serviceProvider.GetRequiredService<MySqlDataHelper>();
+                break;
+            case DbType.SQL_SERVER:
+                dbHelper = _serviceProvider.GetRequiredService<SqlServerDataHelper>();
+                break;
+            case DbType.ORACLE:
+                dbHelper = _serviceProvider.GetRequiredService<OracleDataHelper>();
+                break;
+            default:
+                throw new NotImplementedException($"The dbType {dbType} is not supported yet.");
         }
-
+        string query = dbHelper.BuildQuery(entityRequest);
+        var result = await dbHelper.GetData(query, entityRequest.@params);
+        return Ok(result);
     }
 }

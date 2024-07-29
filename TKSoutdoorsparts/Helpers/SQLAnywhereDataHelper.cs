@@ -14,7 +14,7 @@ public class SqlAnywhereDataHelper : BaseDataHelper
         _appSettings = appSettings;
     }
 
-    public override DbType DbType => DbType.SQLAnywhere;
+    public override DbType DbType => DbType.SQL_ANYWHERE;
     public override string BuildQuery(EntityRequestMetadata request)
     {
         Dictionary<string, object> @params = request.@params;

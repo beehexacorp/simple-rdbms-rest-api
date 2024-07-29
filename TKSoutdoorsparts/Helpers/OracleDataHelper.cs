@@ -1,11 +1,17 @@
+using System.Data.Odbc;
 using TKSoutdoorsparts.Models;
+using TKSoutdoorsparts.Settings;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
 
 public class OracleDataHelper : BaseDataHelper
 {
-    public OracleDataHelper() : base() { }
+    private readonly IAppSettings _appSettings;
+
+    public OracleDataHelper(IAppSettings appSettings) : base() {
+        _appSettings = appSettings;
+    }
 
     public override DbType DbType => DbType.ORACLE;
 
@@ -16,7 +22,7 @@ public class OracleDataHelper : BaseDataHelper
 
     public override System.Data.IDbConnection CreateConnection()
     {
-        throw new NotImplementedException();
+        return new OdbcConnection(_appSettings.ConnectionString);
     }
 }
 

@@ -1,12 +1,17 @@
-using System.Runtime.CompilerServices;
+using System.Data.SqlClient;
 using TKSoutdoorsparts.Models;
+using TKSoutdoorsparts.Settings;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
 
 public class MySqlDataHelper : BaseDataHelper
 {
-    public MySqlDataHelper() : base() { }
+    private readonly IAppSettings _appSettings;
+    
+    public MySqlDataHelper(IAppSettings appSettings) : base() {
+        _appSettings = appSettings;
+    }
 
     public override DbType DbType => DbType.MYSQL;
 
@@ -17,6 +22,6 @@ public class MySqlDataHelper : BaseDataHelper
 
     public override System.Data.IDbConnection CreateConnection()
     {
-        throw new NotImplementedException();
+        return new SqlConnection(_appSettings.ConnectionString);
     }
 }

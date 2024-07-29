@@ -25,7 +25,7 @@ builder.Services.AddSingleton<OracleDataHelper>();
 builder.Services.AddSingleton<MySqlDataHelper>();
 builder.Services.AddSingleton<PostgresDataHelper>();
 
-builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(DbType.SQLAnywhere);
+builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(DbType.SQL_ANYWHERE);
 builder.Services.AddKeyedTransient<IDataHelper, SqlServerDataHelper>(DbType.SQL_SERVER);
 builder.Services.AddKeyedTransient<IDataHelper, OracleDataHelper>(DbType.ORACLE);
 builder.Services.AddKeyedTransient<IDataHelper, MySqlDataHelper>(DbType.MYSQL);

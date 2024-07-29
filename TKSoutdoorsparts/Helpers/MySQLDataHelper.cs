@@ -1,4 +1,4 @@
-using TKSoutdoorsparts.Factory;
+using System.Runtime.CompilerServices;
 using TKSoutdoorsparts.Models;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
@@ -6,7 +6,7 @@ namespace TKSoutdoorsparts.Helpers;
 
 public class MySqlDataHelper : BaseDataHelper
 {
-    public MySqlDataHelper(IConnectionFactory connectionFactory) : base(connectionFactory) { }
+    public MySqlDataHelper() : base() { }
 
     public override DbType DbType => DbType.MYSQL;
 
@@ -15,4 +15,8 @@ public class MySqlDataHelper : BaseDataHelper
         throw new NotImplementedException();
     }
 
+    public override System.Data.IDbConnection CreateConnection()
+    {
+        throw new NotImplementedException();
+    }
 }

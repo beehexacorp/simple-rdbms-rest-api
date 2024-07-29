@@ -37,29 +37,8 @@ public class EntityController : ControllerBase
         }
         // TODO: use regular expression to throw error for UPDATE, INSERT, DELETE, DROP commands
         // TODO: use regular expression to throw error for queries that combine string inside, e.g.: select * from x where a = '1'
-
-        IDataHelper dbHelper;
-        DbType dbType = entityRequest.DbType;
-        switch (dbType)
-        {
-            case DbType.SQLAnywhere:
-                dbHelper = _serviceProvider.GetRequiredService<SqlAnywhereDataHelper>();
-                break;
-            case DbType.POSTGRES:
-                dbHelper = _serviceProvider.GetRequiredService<PostgresDataHelper>();
-                break;
-            case DbType.MYSQL:
-                dbHelper = _serviceProvider.GetRequiredService<MySqlDataHelper>();
-                break;
-            case DbType.SQL_SERVER:
-                dbHelper = _serviceProvider.GetRequiredService<SqlServerDataHelper>();
-                break;
-            case DbType.ORACLE:
-                dbHelper = _serviceProvider.GetRequiredService<OracleDataHelper>();
-                break;
-            default:
-                throw new NotImplementedException($"The dbType {dbType} is not supported yet.");
-        }
+        
+        var dbHelper = _serviceProvider.GetRequiredKeyedService<IDataHelper>(entityRequest.DbType);
         string query = dbHelper.BuildQuery(entityRequest);
         var result = await dbHelper.GetData(query, entityRequest.@params);
         return Ok(result);

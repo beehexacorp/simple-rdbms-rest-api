@@ -1,11 +1,18 @@
 using hexasync.infrastructure.dotnetenv;
-using TKSoutdoorsparts.Factory;
+using System.Text.Json.Serialization;
+using TKSoutdoorsparts.Constants;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Settings;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+// builder.Services.AllowResolvingKeyedServicesAsDictionary();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -18,13 +25,12 @@ builder.Services.AddSingleton<OracleDataHelper>();
 builder.Services.AddSingleton<MySqlDataHelper>();
 builder.Services.AddSingleton<PostgresDataHelper>();
 
-builder.Services.AddSingleton<BaseDataHelper, SqlAnywhereDataHelper>();
-builder.Services.AddSingleton<BaseDataHelper, SqlServerDataHelper>();
-builder.Services.AddSingleton<BaseDataHelper, OracleDataHelper>();
-builder.Services.AddSingleton<BaseDataHelper, MySqlDataHelper>();
-builder.Services.AddSingleton<BaseDataHelper, PostgresDataHelper>();
+builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(DbType.SQLAnywhere);
+builder.Services.AddKeyedTransient<IDataHelper, SqlServerDataHelper>(DbType.SQL_SERVER);
+builder.Services.AddKeyedTransient<IDataHelper, OracleDataHelper>(DbType.ORACLE);
+builder.Services.AddKeyedTransient<IDataHelper, MySqlDataHelper>(DbType.MYSQL);
+builder.Services.AddKeyedTransient<IDataHelper, PostgresDataHelper>(DbType.POSTGRES);
 
-builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

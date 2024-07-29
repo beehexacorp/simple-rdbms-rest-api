@@ -1,10 +1,9 @@
 using TKSoutdoorsparts.Constants;
-using TKSoutdoorsparts.Factory;
 using TKSoutdoorsparts.Models;
 
 namespace TKSoutdoorsparts.Helpers;
 
-public class SqlServerDataHelper(IConnectionFactory connectionFactory) : BaseDataHelper(connectionFactory)
+public class SqlServerDataHelper() : BaseDataHelper()
 {
     public override DbType DbType => DbType.SQL_SERVER;
 
@@ -13,4 +12,8 @@ public class SqlServerDataHelper(IConnectionFactory connectionFactory) : BaseDat
         throw new NotImplementedException();
     }
 
+    public override System.Data.IDbConnection CreateConnection()
+    {
+        throw new NotImplementedException();
+    }
 }

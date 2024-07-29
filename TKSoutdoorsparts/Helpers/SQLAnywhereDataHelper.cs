@@ -1,11 +1,18 @@
-﻿using TKSoutdoorsparts.Factory;
+﻿using System.Data.Odbc;
 using TKSoutdoorsparts.Models;
+using TKSoutdoorsparts.Settings;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 namespace TKSoutdoorsparts.Helpers;
 
 public class SqlAnywhereDataHelper : BaseDataHelper
 {
-    public SqlAnywhereDataHelper(IConnectionFactory connectionFactory) : base(connectionFactory) { }
+    private readonly IAppSettings _appSettings;
+
+
+    public SqlAnywhereDataHelper(IAppSettings appSettings) : base()
+    {
+        _appSettings = appSettings;
+    }
 
     public override DbType DbType => DbType.SQLAnywhere;
     public override string BuildQuery(EntityRequestMetadata request)
@@ -30,4 +37,10 @@ public class SqlAnywhereDataHelper : BaseDataHelper
         var query = $@"SELECT TOP {topValue} START AT {startAtValue} {pgFields} FROM {request.TableName} {pgConditions} {request.OrderBy}";
         return query;
     }
+
+    public override System.Data.IDbConnection CreateConnection()
+    {
+        return new OdbcConnection(_appSettings.ConnectionString);
+    }
+
 }

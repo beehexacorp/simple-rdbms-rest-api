@@ -2,7 +2,7 @@ using TKSoutdoorsparts.Constants;
 
 namespace TKSoutdoorsparts.Models;
 
-public class EntityRequestMetadata : IModel
+public class EntityRequestMetadata
 {
     public required DbType DbType { get; set; }
     public required string TableName { get; set; }

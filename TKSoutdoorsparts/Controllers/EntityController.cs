@@ -40,28 +40,6 @@ public class EntityController : ControllerBase
 
         IDataHelper dbHelper;
         DbType dbType = entityRequest.DbType;
-        Dictionary<string, object> @params = entityRequest.@params;
-
-        @params = @params ?? new Dictionary<string, object>();
-        if (!@params.ContainsKey("limit") & (dbType == DbType.POSTGRES))
-        {
-            throw new ArgumentNullException("The @limit param is required");
-        }
-
-        if (!@params.ContainsKey("offset")& (dbType == DbType.POSTGRES))
-        {
-            throw new ArgumentNullException("The @offset param is required");
-        }
-
-        if (!@params.ContainsKey("top")& (dbType == DbType.SQLAnywhere))
-        {
-            throw new ArgumentNullException("The @top param is required");
-        }
-
-        if (!@params.ContainsKey("startAt")& (dbType == DbType.SQLAnywhere))
-        {
-            throw new ArgumentNullException("The @startAt param is required");
-        }
         switch (dbType)
         {
             case DbType.SQLAnywhere:

@@ -10,6 +10,17 @@ public class SqlAnywhereDataHelper : BaseDataHelper
     public override DbType DbType => DbType.SQLAnywhere;
     public override string BuildQuery(EntityRequestMetadata request)
     {
+        Dictionary<string, object> @params = request.@params;
+        @params = @params ?? new Dictionary<string, object>();
+        if (!@params.ContainsKey("top"))
+        {
+            throw new ArgumentNullException("The @top param is required");
+        }
+
+        if (!@params.ContainsKey("startAt"))
+        {
+            throw new ArgumentNullException("The @startAt param is required");
+        }
         var topValue = request.@params["top"];
         var startAtValue = request.@params["startAt"];
         var pgFields = request.Fields != null && request.Fields.Any() ? string.Join(", ", request.Fields) : "*";

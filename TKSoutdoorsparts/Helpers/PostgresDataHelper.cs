@@ -14,7 +14,16 @@ public class PostgresDataHelper : BaseDataHelper
 
     public override string BuildQuery(EntityRequestMetadata request)
     {
-
+        Dictionary<string, object> @params = request.@params;
+        @params = @params ?? new Dictionary<string, object>();
+        if (!@params.ContainsKey("limit"))
+        {
+            throw new ArgumentNullException("The @limit param is required");
+        }
+        if (!@params.ContainsKey("offset"))
+        {
+            throw new ArgumentNullException("The @offset param is required");
+        }
         var pgFields = request.Fields != null && request.Fields.Any() ? string.Join(", ", request.Fields) : "*";
         var pgConditions = request.Conditions != null && request.Conditions.Any() ? string.Join(", ", request.Conditions.Select(c => $"{c} = @{c}")) : "";
         pgConditions = !string.IsNullOrWhiteSpace(pgConditions) ? $"where {pgConditions}" : "";

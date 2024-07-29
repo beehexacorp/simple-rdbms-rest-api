@@ -2,10 +2,11 @@
 {
     public enum DbType
     {
-        SQLAnywhere,
+        SQL_ANYWHERE,
         SQL_SERVER,
         ORACLE,
         MYSQL,
-        POSTGRES
+        POSTGRES,
+
     }
 }

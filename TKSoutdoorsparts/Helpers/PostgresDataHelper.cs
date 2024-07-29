@@ -1,13 +1,19 @@
-﻿using System.Data;
-using TKSoutdoorsparts.Factory;
+﻿using Npgsql;
+using System.Data;
 using TKSoutdoorsparts.Models;
+using TKSoutdoorsparts.Settings;
 using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
+
 public class PostgresDataHelper : BaseDataHelper
 {
-    public PostgresDataHelper(IConnectionFactory connectionFactory) : base(connectionFactory)
+    private readonly IAppSettings _appSettings;
+
+
+    public PostgresDataHelper(IAppSettings appSettings) : base()
     {
+        _appSettings = appSettings;
     }
 
     public override DbType DbType => DbType.POSTGRES;
@@ -36,4 +42,10 @@ LIMIT @limit
 OFFSET @offset";
         return query;
     }
+
+    public override IDbConnection CreateConnection()
+    {
+        return new NpgsqlConnection(_appSettings.ConnectionString);
+    }
+
 }

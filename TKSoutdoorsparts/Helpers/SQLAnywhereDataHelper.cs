@@ -19,8 +19,7 @@ public class SqlAnywhereDataHelper : BaseDataHelper
 
     public override string BuildQuery(EntityRequestMetadata request)
     {
-        Dictionary<string, object> @params = request.@params;
-        @params = @params ?? new Dictionary<string, object>();
+        Dictionary<string, object> @params = request.@params ?? new Dictionary<string, object>();
         if (!@params.ContainsKey("top"))
         {
             throw new ArgumentNullException("The @top param is required");
@@ -32,21 +31,24 @@ public class SqlAnywhereDataHelper : BaseDataHelper
         }
         var topValue = request.@params["top"];
         var startAtValue = request.@params["startAt"];
-        var pgFields =
+        var fields =
             request.Fields != null && request.Fields.Any()
                 ? string.Join(", ", request.Fields)
                 : "*";
-        var pgConditions =
+        var conditions =
             request.Conditions != null && request.Conditions.Any()
                 ? string.Join("AND ", request.Conditions.Select(c => $"{c} = @{c}"))
                 : "";
-        pgConditions = !string.IsNullOrWhiteSpace(pgConditions) ? $"WHERE {pgConditions}" : "";
+        conditions = !string.IsNullOrWhiteSpace(conditions) ? $"WHERE {conditions}" : "";
         request.OrderBy = !string.IsNullOrWhiteSpace(request.OrderBy)
             ? $"ORDER BY {request.OrderBy}"
             : "";
         var query =
-            $@"SELECT TOP {topValue} START AT {startAtValue} {pgFields} FROM {request.TableName} {pgConditions} {request.OrderBy}";
-        return query;
+            $@"SELECT TOP {topValue} START AT {startAtValue} {fields}
+FROM {request.TableName}
+{conditions}
+{request.OrderBy}";
+        return query.Trim();
     }
 
     public override System.Data.IDbConnection CreateConnection()

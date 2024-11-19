@@ -2,10 +2,27 @@ using hexasync.infrastructure.dotnetenv;
 using System.Text.Json.Serialization;
 using TKSoutdoorsparts.Constants;
 using TKSoutdoorsparts.Helpers;
+using TKSoutdoorsparts.Middleware;
 using TKSoutdoorsparts.Settings;
+using Serilog;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
+
+// Register the log
+var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HexaSyncRDBMSSimpleAPI", "Logs", "log.txt");
+// Log by day
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(logPath, rollingInterval: RollingInterval.Hour)
+    .CreateLogger();
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
+// builder.Logging.AddConsole();
+// builder.Logging.AddFile("Logs/Request-{Date}.txt");
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
@@ -39,6 +56,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 app.UseHttpsRedirection();
 

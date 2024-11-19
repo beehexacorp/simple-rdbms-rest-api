@@ -31,7 +31,7 @@ public class PostgresDataHelper : BaseDataHelper
             throw new ArgumentNullException("The @offset param is required");
         }
         var pgFields = request.Fields != null && request.Fields.Any() ? string.Join(", ", request.Fields) : "*";
-        var pgConditions = request.Conditions != null && request.Conditions.Any() ? string.Join(", ", request.Conditions.Select(c => $"{c} = @{c}")) : "";
+        var pgConditions = request.Conditions != null && request.Conditions.Any() ? string.Join("AND ", request.Conditions.Select(c => $"{c} = @{c}")) : "";
         pgConditions = !string.IsNullOrWhiteSpace(pgConditions) ? $"where {pgConditions}" : "";
         request.OrderBy = !string.IsNullOrWhiteSpace(request.OrderBy) ? $"order by {request.OrderBy}" : "";
         var query = $@"SELECT {pgFields} 

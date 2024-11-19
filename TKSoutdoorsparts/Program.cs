@@ -1,17 +1,44 @@
-using hexasync.infrastructure.dotnetenv;
 using System.Text.Json.Serialization;
+using hexasync.infrastructure.dotnetenv;
+using Microsoft.AspNetCore.Diagnostics;
+using Serilog;
 using TKSoutdoorsparts.Constants;
 using TKSoutdoorsparts.Helpers;
+using TKSoutdoorsparts.Middleware;
 using TKSoutdoorsparts.Settings;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
-builder.Services
-    .AddControllers()
+
+// Register the log
+var logPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "HexaSyncRDBMSSimpleAPI",
+    "Logs",
+    "log.txt"
+);
+
+// Log by day
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(logPath, rollingInterval: RollingInterval.Hour)
+    .CreateLogger();
+
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
+
+// builder.Logging.AddConsole();
+// builder.Logging.AddFile("Logs/Request-{Date}.txt");
+
+builder
+    .Services.AddControllers()
     .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        });
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 // builder.Services.AllowResolvingKeyedServicesAsDictionary();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -39,6 +66,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
+app.UseExceptionHandler(a =>
+    a.Run(async context =>
+    {
+        var logger = app.Logger;
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        app.Logger.LogError(
+            exception?.Message ?? exception?.InnerException?.Message,
+            exception?.InnerException ?? exception
+        );
+    })
+);
 
 app.UseHttpsRedirection();
 

@@ -9,7 +9,9 @@ public class OracleDataHelper : BaseDataHelper
 {
     private readonly IAppSettings _appSettings;
 
-    public OracleDataHelper(IAppSettings appSettings) : base() {
+    public OracleDataHelper(IAppSettings appSettings)
+        : base()
+    {
         _appSettings = appSettings;
     }
 
@@ -25,5 +27,3 @@ public class OracleDataHelper : BaseDataHelper
         return new OdbcConnection(_appSettings.ConnectionString);
     }
 }
-
-

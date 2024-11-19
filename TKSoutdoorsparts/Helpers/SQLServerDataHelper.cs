@@ -9,10 +9,12 @@ public class SqlServerDataHelper : BaseDataHelper
 {
     private readonly IAppSettings _appSettings;
 
-    public SqlServerDataHelper(IAppSettings appSettings) : base()
+    public SqlServerDataHelper(IAppSettings appSettings)
+        : base()
     {
         _appSettings = appSettings;
     }
+
     public override DbType DbType => DbType.SQL_SERVER;
 
     public override string BuildQuery(EntityRequestMetadata request)

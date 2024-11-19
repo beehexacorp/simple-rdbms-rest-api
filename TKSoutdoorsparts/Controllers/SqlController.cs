@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
+using TKSoutdoorsparts.Constants;
 using TKSoutdoorsparts.Helpers;
 using TKSoutdoorsparts.Models;
 using TKSoutdoorsparts.Settings;
@@ -38,7 +39,7 @@ public class SqlController : ControllerBase
         var decodedQuery = HttpUtility.UrlDecode(queryRequest.Query);
 
         var dangerousCommandsRegex = new Regex(
-            @"(?i)\b(DROP\s+(TABLE|INDEX|DATABASE)|ALTER\s+(TABLE|INDEX)|RENAME\s+INDEX)\b",
+            RegexConstants.dangerousCommands,
             RegexOptions.IgnoreCase
         );
         if (dangerousCommandsRegex.IsMatch(decodedQuery))
@@ -47,7 +48,7 @@ public class SqlController : ControllerBase
         }
 
         var embeddedStringRegex = new Regex(
-            @"(?i)(\b[\w.]+?\s*=\s*(?:ANY\([^()]+\)|'[^']*'|[^()\s]+)|\b[\w.]+\s+IS\s+NOT\s+NULL|\b[\w.]+\s+IS\s+NULL)",
+            RegexConstants.embeddedString,
             RegexOptions.IgnoreCase
         );
         if (embeddedStringRegex.IsMatch(decodedQuery))
@@ -55,24 +56,8 @@ public class SqlController : ControllerBase
             return BadRequest(new { error = "Query contains forbidden SQL commands." });
         }
 
-        try
-        {
-            var dbHelper = _serviceProvider.GetRequiredKeyedService<IDataHelper>(
-                queryRequest.DbType
-            );
-            var result = await dbHelper.GetData(decodedQuery, queryRequest.@params);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(
-                500,
-                new
-                {
-                    error = "An error occurred while processing the query.",
-                    details = ex.Message
-                }
-            );
-        }
+        var dbHelper = _serviceProvider.GetRequiredKeyedService<IDataHelper>(queryRequest.DbType);
+        var result = await dbHelper.GetData(decodedQuery, queryRequest.@params);
+        return Ok(result);
     }
 }

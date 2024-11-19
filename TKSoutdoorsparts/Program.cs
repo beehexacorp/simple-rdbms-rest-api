@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using hexasync.infrastructure.dotnetenv;
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 using TKSoutdoorsparts.Constants;
 using TKSoutdoorsparts.Helpers;
@@ -67,6 +68,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
+app.UseExceptionHandler(a =>
+    a.Run(async context =>
+    {
+        var logger = app.Logger;
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        app.Logger.LogError(
+            exception?.Message ?? exception?.InnerException?.Message,
+            exception?.InnerException ?? exception
+        );
+    })
+);
 
 app.UseHttpsRedirection();
 

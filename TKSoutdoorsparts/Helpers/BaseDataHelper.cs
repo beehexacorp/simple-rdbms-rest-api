@@ -1,29 +1,29 @@
 using System.Data;
-using Dapper;
-using DbType = TKSoutdoorsparts.Constants.DbType;
-using TKSoutdoorsparts.Models;
 using System.Text.Json;
+using Dapper;
+using TKSoutdoorsparts.Models;
+using DbType = TKSoutdoorsparts.Constants.DbType;
 
 namespace TKSoutdoorsparts.Helpers;
 
 public abstract class BaseDataHelper : IDataHelper
 {
-    public BaseDataHelper()
-    {
-
-    }
+    public BaseDataHelper() { }
 
     public abstract DbType DbType { get; }
 
     public abstract string BuildQuery(EntityRequestMetadata request);
     public abstract IDbConnection CreateConnection();
 
-
-    public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(string query, Dictionary<string, object>? @params)
+    public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(
+        string query,
+        Dictionary<string, object>? @params
+    )
     {
         var convertedParams = @params?.ToDictionary(
             kvp => kvp.Key,
-            kvp => kvp.Value is JsonElement jsonElement ? ConvertJsonElement(jsonElement) : kvp.Value
+            kvp =>
+                kvp.Value is JsonElement jsonElement ? ConvertJsonElement(jsonElement) : kvp.Value
         );
 
         using IDbConnection connection = CreateConnection();

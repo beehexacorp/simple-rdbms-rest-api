@@ -8,8 +8,10 @@ namespace TKSoutdoorsparts.Helpers;
 public class MySqlDataHelper : BaseDataHelper
 {
     private readonly IAppSettings _appSettings;
-    
-    public MySqlDataHelper(IAppSettings appSettings) : base() {
+
+    public MySqlDataHelper(IAppSettings appSettings)
+        : base()
+    {
         _appSettings = appSettings;
     }
 

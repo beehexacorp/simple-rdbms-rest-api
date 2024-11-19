@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Serilog;
+
 namespace TKSoutdoorsparts.Middleware
 {
     public class RequestResponseLoggingMiddleware
@@ -11,7 +12,10 @@ namespace TKSoutdoorsparts.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
 
-        public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger)
+        public RequestResponseLoggingMiddleware(
+            RequestDelegate next,
+            ILogger<RequestResponseLoggingMiddleware> logger
+        )
         {
             _next = next;
             _logger = logger;
@@ -29,7 +33,7 @@ namespace TKSoutdoorsparts.Middleware
         private async Task LogRequest(HttpContext context)
         {
             // Allow the request body to be read multiple times
-            context.Request.EnableBuffering(); 
+            context.Request.EnableBuffering();
 
             var request = context.Request;
             var requestBody = "";
@@ -40,7 +44,7 @@ namespace TKSoutdoorsparts.Middleware
                 {
                     requestBody = await reader.ReadToEndAsync();
                     // Reset body stream position for further processing
-                    context.Request.Body.Position = 0; 
+                    context.Request.Body.Position = 0;
                 }
             }
 
@@ -61,7 +65,7 @@ namespace TKSoutdoorsparts.Middleware
             context.Response.Body = responseBodyStream;
 
             // Continue processing the request
-            await _next(context); 
+            await _next(context);
 
             context.Response.Body.Seek(0, SeekOrigin.Begin);
             var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();

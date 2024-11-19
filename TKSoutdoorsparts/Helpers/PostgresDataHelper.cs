@@ -49,7 +49,7 @@ FROM {request.TableName}
 {request.OrderBy} 
 LIMIT @limit 
 OFFSET @offset";
-        return  query.Trim();
+        return query.Trim();
     }
 
     public override IDbConnection CreateConnection()

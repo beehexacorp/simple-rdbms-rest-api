@@ -36,7 +36,7 @@ public class PostgresDataHelper : BaseDataHelper
                 : "*";
         var conditions =
             request.Conditions != null && request.Conditions.Any()
-                ? string.Join("AND ", request.Conditions.Select(c => $"{c} = @{c}"))
+                ? string.Join("AND ", request.Conditions)
                 : "";
         conditions = !string.IsNullOrWhiteSpace(conditions) ? $"where {conditions}" : "";
         request.OrderBy = !string.IsNullOrWhiteSpace(request.OrderBy)

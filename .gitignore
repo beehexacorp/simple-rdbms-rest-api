@@ -5,3 +5,6 @@
 **/.env
 .env
 .fake
+node_modules
+.vs
+log*.txt

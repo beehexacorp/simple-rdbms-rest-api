@@ -2,14 +2,14 @@
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
-using TKSoutdoorsparts.Constants;
-using TKSoutdoorsparts.Helpers;
-using TKSoutdoorsparts.Models;
-using TKSoutdoorsparts.Settings;
+using SimpleRDBMSRestfulAPI.Constants;
+using SimpleRDBMSRestfulAPI.Helpers;
+using SimpleRDBMSRestfulAPI.Models;
+using SimpleRDBMSRestfulAPI.Settings;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace TKSoutdoorsparts.Controllers;
+namespace SimpleRDBMSRestfulAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

@@ -1,9 +1,9 @@
 using System.Data.Odbc;
-using TKSoutdoorsparts.Models;
-using TKSoutdoorsparts.Settings;
-using DbType = TKSoutdoorsparts.Constants.DbType;
+using SimpleRDBMSRestfulAPI.Models;
+using SimpleRDBMSRestfulAPI.Settings;
+using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
-namespace TKSoutdoorsparts.Helpers;
+namespace SimpleRDBMSRestfulAPI.Helpers;
 
 public class OracleDataHelper : BaseDataHelper
 {

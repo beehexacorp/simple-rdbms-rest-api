@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace TKSoutdoorsparts.Middleware
+namespace SimpleRDBMSRestfulAPI.Middleware
 {
     public class RequestResponseLoggingMiddleware
     {

@@ -1,4 +1,4 @@
-﻿namespace TKSoutdoorsparts.Settings
+﻿namespace SimpleRDBMSRestfulAPI.Settings
 {
     public interface IAppSettings
     {

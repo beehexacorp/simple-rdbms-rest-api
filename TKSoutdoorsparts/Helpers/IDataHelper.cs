@@ -1,7 +1,7 @@
-﻿using TKSoutdoorsparts.Models;
-using DbType = TKSoutdoorsparts.Constants.DbType;
+﻿using SimpleRDBMSRestfulAPI.Models;
+using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
-namespace TKSoutdoorsparts.Helpers;
+namespace SimpleRDBMSRestfulAPI.Helpers;
 
 public interface IDataHelper
 {

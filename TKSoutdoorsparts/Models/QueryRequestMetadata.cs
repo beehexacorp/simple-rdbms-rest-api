@@ -1,6 +1,6 @@
-using TKSoutdoorsparts.Constants;
+using SimpleRDBMSRestfulAPI.Constants;
 
-namespace TKSoutdoorsparts.Models
+namespace SimpleRDBMSRestfulAPI.Models
 {
     public class QueryRequestMetadata
     {

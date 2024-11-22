@@ -1,4 +1,4 @@
-﻿namespace TKSoutdoorsparts.Constants
+﻿namespace SimpleRDBMSRestfulAPI.Constants
 {
     public enum DbType
     {

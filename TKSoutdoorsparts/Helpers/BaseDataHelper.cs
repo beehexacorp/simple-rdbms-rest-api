@@ -1,10 +1,10 @@
 using System.Data;
 using System.Text.Json;
 using Dapper;
-using TKSoutdoorsparts.Models;
-using DbType = TKSoutdoorsparts.Constants.DbType;
+using SimpleRDBMSRestfulAPI.Models;
+using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
-namespace TKSoutdoorsparts.Helpers;
+namespace SimpleRDBMSRestfulAPI.Helpers;
 
 public abstract class BaseDataHelper : IDataHelper
 {

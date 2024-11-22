@@ -4,4 +4,12 @@
 /obj
 **/.vs
 TKSoutdoorsparts/obj/
- .vs/TKSoutdoorsparts/
+.vs
+.idea
+node_modules
+release
+dist
+
+**/node_modules
+**/release
+**/dist

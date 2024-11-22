@@ -1,9 +1,9 @@
 using System.Data.SqlClient;
-using TKSoutdoorsparts.Constants;
-using TKSoutdoorsparts.Models;
-using TKSoutdoorsparts.Settings;
+using SimpleRDBMSRestfulAPI.Constants;
+using SimpleRDBMSRestfulAPI.Models;
+using SimpleRDBMSRestfulAPI.Settings;
 
-namespace TKSoutdoorsparts.Helpers;
+namespace SimpleRDBMSRestfulAPI.Helpers;
 
 public class SqlServerDataHelper : BaseDataHelper
 {

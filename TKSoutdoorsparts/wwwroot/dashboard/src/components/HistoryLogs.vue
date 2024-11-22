@@ -38,13 +38,14 @@ import { onMounted, ref } from 'vue';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { DownloadOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+
 import {
     fetchHistoryLogs,
     fetchLogDetail,
     downloadLogFile
 } from '@/services/logService';
 import type { LogEntry } from '@/services/logService';
+import { useMessage } from '@/utils/message';
 
 // Extend Day.js with advanced format for ordinal dates
 dayjs.extend(advancedFormat);
@@ -58,14 +59,7 @@ const isDrawerVisible = ref(false);
 const logContent = ref<string>('');
 const selectedLogDetail = ref<LogEntry | null>(null);
 const histories = ref<LogEntry[]>([]);
-
-// Helper to display a notification message
-const showMessage = (type: 'success' | 'error', content: string) => {
-    message[type]({
-        content,
-        duration: 10
-    });
-};
+const $message = useMessage()
 
 // Fetch history logs based on the selected date
 const updateHistoryLogs = async () => {
@@ -73,9 +67,8 @@ const updateHistoryLogs = async () => {
         const timestamp = selectedDate.value.valueOf();
         histories.value = await fetchHistoryLogs(timestamp);
     } catch (error) {
-        showMessage('error', 'Failed to fetch history logs. Please try again later.');
-        console.error(error);
         histories.value = [];
+        $message('error', 'Failed to fetch history logs. Please try again later.', error);
     }
 };
 
@@ -86,8 +79,7 @@ const onReadLogDetail = async (history: LogEntry) => {
         selectedLogDetail.value = history;
         isDrawerVisible.value = true;
     } catch (error) {
-        showMessage('error', 'Error fetching log detail. Please try again later.');
-        console.error(error);
+        $message('error', 'Error fetching log detail. Please try again later.', error);
     }
 };
 
@@ -95,10 +87,9 @@ const handleDownload = async () => {
     if (!selectedLogDetail.value) return;
     try {
         await downloadLogFile(selectedLogDetail.value.filename);
-        showMessage('success', 'File downloaded successfully!');
+        $message('success', 'File downloaded successfully!');
     } catch (error) {
-        showMessage('error', 'Error downloading log file. Please try again later.');
-        console.error(error);
+        $message('error', 'Error downloading log file. Please try again later.', error);
     }
 };
 

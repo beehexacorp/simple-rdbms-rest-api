@@ -5,19 +5,19 @@
             <a-row>
                 <a-col :span="24">
                     <p>
-                        <strong>Database Type:</strong> {{ connectionInfo.DbType }}
+                        <strong>Database Type:</strong> {{ connectionInfo.dbType }}
                     </p>
                     <p>
-                        <strong>Database:</strong> {{ connectionInfo.Database }}
+                        <strong>Database:</strong> {{ connectionInfo.database }}
                     </p>
                     <p>
-                        <strong>Host:</strong> {{ connectionInfo.Host }}
+                        <strong>Host:</strong> {{ connectionInfo.host }}
                     </p>
                     <p>
-                        <strong>Port:</strong> {{ connectionInfo.Port }}
+                        <strong>Port:</strong> {{ connectionInfo.port }}
                     </p>
                     <p>
-                        <strong>User:</strong> {{ connectionInfo.User }}
+                        <strong>User:</strong> {{ connectionInfo.user }}
                     </p>
                 </a-col>
                 <a-col :span="24" style="margin-top: 20px;">
@@ -28,12 +28,13 @@
 
         <!-- Connection Form Section -->
         <template v-else>
-            <a-form layout="vertical" @submit.prevent="onSubmit">
+            <a-form layout="vertical" @submit.prevent="saveConnectionInfo">
                 <a-form-item label="Database Type">
-                    <a-select v-model="selectedDbType" :options="dbTypes" placeholder="Select Database Type" />
+                    <a-select v-model:value="selectedDbType" @change="onDbTypeChanged" :options="dbTypes"
+                        placeholder="Select Database Type" />
                 </a-form-item>
                 <a-form-item label="Connection String">
-                    <a-input v-model="connectionString" :placeholder="getPlaceholderForDbType(selectedDbType)" />
+                    <a-input v-model:value.lazy="connectionString" :placeholder="connectionStringPlaceholder" />
                 </a-form-item>
                 <a-form-item>
                     <a-button type="primary" @click="testConnection">Test Connection</a-button>
@@ -45,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import {
     fetchConnectionInfo,
     fetchDbTypes,
@@ -53,16 +54,20 @@ import {
     saveConnection,
 } from "@/services/connectionService";
 import type { ConnectionInfoViewModel } from "@/services/connectionService";
+import { useMessage } from '@/utils/message';
+
+
+const $message = useMessage()
 
 // Reactive data
 const connectionInfo = ref<ConnectionInfoViewModel | null>(null);
 const dbTypes = ref<{ value: number; label: string }[]>([]);
-const selectedDbType = ref<number | null>(null);
-const connectionString = ref<string>("");
+const selectedDbType = ref<number | null>(4);
+const connectionString = ref<string>("Server=shared-postgres.demo.svc.cluster.local;Port=5432;Database=postgres;Userid=postgres;Password=vJ)cPF2ZDYsQIg.N;Pooling=true;MinPoolSize=1;MaxPoolSize=100;Include Error Detail=true");
 
-// Fetch placeholder for selected DB type
-const getPlaceholderForDbType = (dbType: number | null) => {
-    switch (dbType) {
+// Placeholder for connection string
+const connectionStringPlaceholder = computed(() => {
+    switch (selectedDbType.value) {
         case 0: // SQL_ANYWHERE
             return "e.g., Anywhere:ENG=server_name;DBN=database_name;UID=user;PWD=password;";
         case 1: // SQL_SERVER
@@ -76,17 +81,28 @@ const getPlaceholderForDbType = (dbType: number | null) => {
         default:
             return "Enter connection string...";
     }
-};
+});
+
+// // Watcher for database type changes (optional)
+// watch(selectedDbType, (newType, oldType) => {
+//     // Reset connection string when database type changes
+//     connectionString.value = "";
+// });
+
+const onDbTypeChanged = (v: number) => {
+    console.log(`Database type changed from ${selectedDbType.value} to ${v}`);
+    selectedDbType.value = v;
+    connectionString.value = "";
+}
 
 // Load connection info and database types
 const loadConnectionSettings = async () => {
     try {
+        dbTypes.value = await fetchDbTypes();
+        selectedDbType.value = 4;
         connectionInfo.value = await fetchConnectionInfo();
-        if (!connectionInfo.value) {
-            dbTypes.value = await fetchDbTypes();
-        }
     } catch (error) {
-        console.error("Error loading connection settings:", error);
+        $message('error', `Error loading connection settings: ${error}`, error);
     }
 };
 
@@ -94,9 +110,9 @@ const loadConnectionSettings = async () => {
 const testConnectionFromConfigs = async () => {
     try {
         await tryConnect({ useConfig: true });
-        console.log("Connection successful!");
+        $message('success', "Connection successful!");
     } catch (error) {
-        console.error("Connection test failed:", error);
+        $message('error', `Connection test failed: ${error}`, error);
     }
 };
 
@@ -110,9 +126,9 @@ const testConnection = async () => {
             dbType: selectedDbType.value,
             connectionString: connectionString.value,
         });
-        console.log("Connection successful!");
+        $message('success', "Connection successful!");
     } catch (error) {
-        console.error("Connection test failed:", error);
+        $message('error', `Connection test failed: ${error}`, error);
     }
 };
 
@@ -126,9 +142,9 @@ const saveConnectionInfo = async () => {
             dbType: selectedDbType.value,
             connectionString: connectionString.value,
         });
-        console.log("Connection saved!");
+        $message('success', "Connection saved!");
     } catch (error) {
-        console.error("Failed to save connection:", error);
+        $message('error', `Failed to save connection: ${error}`, error);
     }
 };
 
@@ -137,8 +153,5 @@ onMounted(loadConnectionSettings);
 </script>
 
 <style scoped>
-.database-connection {
-    max-width: 600px;
-    margin: 0 auto;
-}
+.database-connection {}
 </style>

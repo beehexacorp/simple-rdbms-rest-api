@@ -9,22 +9,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: defineAsyncComponent(() => import('../views/HomeView.vue')),
+      component: () => import('../views/HomeView.vue'),
     },
     {
       path: '',
       name: 'empty-home',
-      component: defineAsyncComponent(() => import('../views/HomeView.vue')),
+      component: () => import('../views/HomeView.vue'),
     },
     {
       path: '/documentation',
       name: 'documentation',
-      component: defineAsyncComponent(() => import('../views/Documentation.vue')),
+      component: () => import('../views/Documentation.vue'),
     },
     {
       path: '/settings',
       name: 'settings',
-      component: defineAsyncComponent(() => import('../views/Settings.vue')),
+      component: () => import('../views/Settings.vue'),
     },
   ],
 })

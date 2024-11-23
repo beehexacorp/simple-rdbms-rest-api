@@ -7,7 +7,7 @@ public class AppSettings : IAppSettings
 {
     private readonly string _credentialsPath = Path.Combine(Directory.GetCurrentDirectory(), "credentials.enc");
     private static ConnectionInfoDTO? _connectionInfo = null;
-    public ConnectionInfoDTO GetConnectionInfo()
+    public ConnectionInfoDTO? GetConnectionInfo()
     {
         if (_connectionInfo != null)
         {
@@ -16,7 +16,7 @@ public class AppSettings : IAppSettings
 
         if (!File.Exists(_credentialsPath))
         {
-            throw new ArgumentNullException("You need to ask the API owner to authorize the database connection first.");
+            return null;
         }
 
         var credentialContent = string.Empty;
@@ -33,7 +33,7 @@ public class AppSettings : IAppSettings
 
         if (string.IsNullOrWhiteSpace(credentialContent))
         {
-            throw new ArgumentNullException("You need to ask the API owner to re-authorize the database connection.");
+            return null;
         }
         // Deserialize YAML to C# object
         var deserializer = new DeserializerBuilder()
@@ -43,28 +43,28 @@ public class AppSettings : IAppSettings
         _connectionInfo = deserializer.Deserialize<ConnectionInfoDTO?>(credentialContent);
         if (_connectionInfo?.ConnectionString == null)
         {
-            throw new ArgumentNullException("You need to ask the API owner to re-authorize the database connection.");
+            return null;
         }
         return _connectionInfo;
     }
 
     public string GetConnectionString()
     {
-        return GetConnectionInfo().GetConnectionString()!;
+        return GetConnectionInfo()?.GetConnectionString()!;
     }
 
     public async Task SaveConnectionAsync(DbType dbType, string connectionString)
     {
         if (File.Exists(_credentialsPath))
         {
-            throw new ArgumentOutOfRangeException($@"The API has already authorized. Please ask the API owner to cleanup the credentials file first.");
+            throw new Exception($@"The API has already authorized. Please ask the API owner to cleanup the credentials file first.");
         }
 
         var encryptedConnectionString = connectionString.EncryptAES();
         _connectionInfo = new ConnectionInfoDTO
         {
             DbType = dbType,
-            ConnectionString = encryptedConnectionString,
+            ConnectionString = Convert.ToBase64String(encryptedConnectionString),
         };
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)

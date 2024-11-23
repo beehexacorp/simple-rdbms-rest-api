@@ -22,7 +22,8 @@ export const fetchHistoryLogs = async (timestamp: number): Promise<LogEntry[]> =
   })
 
   if (!response.ok) {
-    throw new Error(`Error fetching logs: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 
   const data: { filename: string }[] = await response.json()
@@ -61,7 +62,8 @@ export const fetchLogDetail = async (filename: string): Promise<string> => {
   })
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch log detail: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 
   const buffer = await response.arrayBuffer()
@@ -80,7 +82,8 @@ export const downloadLogFile = async (filename: string): Promise<void> => {
   const response = await fetch(apiUrl)
 
   if (!response.ok) {
-    throw new Error(`Failed to download file: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 
   const blob = await response.blob()

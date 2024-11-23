@@ -1,11 +1,13 @@
 import { useServiceEndpoint } from '@/utils/serviceEndpoint'
 
+const serviceEndpointHandler = useServiceEndpoint()
+
 export interface ConnectionInfoViewModel {
-  DbType: number
-  Database: string
-  Host: string
-  Port: string
-  User: string
+  dbType: number // Assuming DbType is an enum represented as a number
+  database: string
+  host: string
+  port: string
+  user: string
 }
 
 export interface TestConnectionRequest {
@@ -13,8 +15,6 @@ export interface TestConnectionRequest {
   connectionString?: string
   useConfig?: boolean // When true, it tests the connection using existing configs
 }
-
-const serviceEndpointHandler = useServiceEndpoint()
 
 /**
  * Fetch the current connection info.
@@ -35,7 +35,8 @@ export const fetchConnectionInfo = async (): Promise<ConnectionInfoViewModel | n
   }
 
   if (!response.ok) {
-    throw new Error(`Error fetching connection info: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 
   return await response.json()
@@ -55,7 +56,8 @@ export const fetchDbTypes = async (): Promise<{ value: number; label: string }[]
   })
 
   if (!response.ok) {
-    throw new Error(`Error fetching database types: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 
   const data = await response.json()
@@ -86,7 +88,8 @@ export const tryConnect = async (request: TestConnectionRequest): Promise<void> 
   })
 
   if (!response.ok) {
-    throw new Error(`Error testing connection: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 }
 
@@ -108,6 +111,7 @@ export const saveConnection = async (request: TestConnectionRequest): Promise<vo
   })
 
   if (!response.ok) {
-    throw new Error(`Error saving connection: ${response.statusText}`)
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
   }
 }

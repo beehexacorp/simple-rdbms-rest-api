@@ -1,6 +1,7 @@
 using System.Data.SqlClient;
 using Dapper;
 using SimpleRDBMSRestfulAPI.Constants;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 
@@ -80,5 +81,10 @@ ORDER BY TABLE_NAME;");
             return dataSource.Split(',')[1];
         }
         return "1433"; // Default SQL Server port
+    }
+
+    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    {
+        throw new NotImplementedException();
     }
 }

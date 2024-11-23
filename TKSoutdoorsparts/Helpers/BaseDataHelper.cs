@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 using Dapper;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
@@ -37,6 +38,8 @@ public abstract class BaseDataHelper : IDataHelper
     public abstract string GetDatabase(byte[] encryptedConnectionString);
     public abstract string GetHost(byte[] encryptedConnectionString);
     public abstract string GetPort(byte[] encryptedConnectionString);
+    public abstract Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset);
+
     public abstract string GetUser(byte[] encryptedConnectionString);
 
 

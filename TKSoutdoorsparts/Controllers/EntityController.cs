@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using SimpleRDBMSRestfulAPI.Constants;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Helpers;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
@@ -13,19 +14,25 @@ namespace SimpleRDBMSRestfulAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class EntityController : ControllerBase
+public class EntityController(IAppSettings appSettings, IServiceProvider serviceProvider) : ControllerBase
 {
-    private readonly IAppSettings _appSettings;
-    private readonly IServiceProvider _serviceProvider;
-
-    public EntityController(IAppSettings appSettings, IServiceProvider serviceProvider)
+    [HttpGet()]
+    public async Task<IActionResult> GetTables(
+        [FromQuery] CursorDirection rel = CursorDirection.Next,
+        [FromQuery(Name = "q")] string? query = null,
+        [FromQuery] string? cursor = null,
+        [FromQuery] int limit = 100,
+        [FromQuery] int offset = 0)
     {
-        _appSettings = appSettings;
-        _serviceProvider = serviceProvider;
+        var connectonInfo = appSettings.GetConnectionInfo();
+        if (connectonInfo?.ConnectionString == null)
+        {
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+        }
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
+        var results = await dbHelper.GetTables(query, rel, cursor, limit, offset);
+        return Ok(results);
     }
-
-    // TODO: /api/sql/update
-    // TODO: /api/sql/insert
 
     // /api/sql/query
     [HttpPost("query")]
@@ -38,7 +45,7 @@ public class EntityController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        var dbHelper = _serviceProvider.GetRequiredKeyedService<IDataHelper>(entityRequest.DbType);
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(entityRequest.DbType);
         string query = dbHelper.BuildQuery(entityRequest);
 
         var decodedQuery = HttpUtility.UrlDecode(query);

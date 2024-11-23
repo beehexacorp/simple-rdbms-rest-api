@@ -1,4 +1,5 @@
-﻿using SimpleRDBMSRestfulAPI.Models;
+﻿using SimpleRDBMSRestfulAPI.Core;
+using SimpleRDBMSRestfulAPI.Models;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
 namespace SimpleRDBMSRestfulAPI.Helpers;
@@ -15,4 +16,5 @@ public interface IDataHelper
     string GetHost(byte[] encryptedConnectionString);
     string GetPort(byte[] encryptedConnectionString);
     string GetUser(byte[] encryptedConnectionString);
+    Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset);
 }

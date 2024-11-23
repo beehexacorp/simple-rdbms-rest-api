@@ -1,5 +1,6 @@
 using System.Data.Odbc;
 using Dapper;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
@@ -95,4 +96,10 @@ public class OracleDataHelper : BaseDataHelper
         }
         return "N/A";
     }
+
+    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    {
+        throw new NotImplementedException();
+    }
+
 }

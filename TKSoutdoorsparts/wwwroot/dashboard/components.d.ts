@@ -25,6 +25,7 @@ declare module 'vue' {
     AMenuItem: typeof import('ant-design-vue/es')['MenuItem']
     ARow: typeof import('ant-design-vue/es')['Row']
     ASelect: typeof import('ant-design-vue/es')['Select']
+    ATable: typeof import('ant-design-vue/es')['Table']
     ConnectionSetting: typeof import('./src/components/settings/ConnectionSetting.vue')['default']
     HistoryLogs: typeof import('./src/components/HistoryLogs.vue')['default']
     RealtimeLog: typeof import('./src/components/RealtimeLog.vue')['default']
@@ -33,5 +34,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./src/components/SideBar.vue')['default']
     SiteLogo: typeof import('./src/components/SiteLogo.vue')['default']
+    TableList: typeof import('./src/components/tables/TableList.vue')['default']
   }
 }

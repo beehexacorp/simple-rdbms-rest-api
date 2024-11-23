@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Dapper;
 using Npgsql;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
@@ -87,6 +88,105 @@ LIMIT 1;");
         var builder = new NpgsqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
         return builder.Port.ToString();
     }
+
+    public override async Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    {
+        var sql = @"WITH filtered_tables AS (
+    SELECT 
+        table_catalog,
+        table_schema,
+        table_name,
+        to_jsonb(jsonb_build_object(
+            'table_catalog', table_catalog,
+            'table_schema', table_schema,
+            'table_name', table_name
+        )) AS cursor_data,
+        ts_rank_cd(
+            to_tsvector('simple', table_name),
+            phraseto_tsquery('simple', @query)
+        ) AS rank
+    FROM information_schema.tables
+    WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+      AND table_type = 'BASE TABLE'
+      AND (
+          (@query IS NULL) OR
+          (to_tsvector('simple', table_name) @@ phraseto_tsquery('simple', @query)) OR
+          (similarity(table_name::text, @query) > 0.2) OR
+          (table_name ~* @query)
+      )
+),
+cursor_decoded AS (
+    SELECT
+        (jsonb_each_text(convert_from(decode(@cursor, 'base64'), 'UTF8')::jsonb)).*
+),
+decoded_values AS (
+    SELECT
+        MAX(CASE WHEN key = 'table_catalog' THEN value END) AS table_catalog,
+        MAX(CASE WHEN key = 'table_schema' THEN value END) AS table_schema,
+        MAX(CASE WHEN key = 'table_name' THEN value END) AS table_name
+    FROM cursor_decoded
+),
+encoded_cursor AS (
+    SELECT
+        table_catalog,
+        table_schema,
+        table_name,
+        encode(to_jsonb(cursor_data)::text::bytea, 'base64') AS __cursor,
+        rank
+    FROM filtered_tables
+),
+paged_query AS (
+    SELECT
+        *
+    FROM encoded_cursor
+    WHERE (
+        @cursor IS NULL OR -- No cursor provided
+        (
+            @cursor IS NOT NULL AND @rel = 1 AND
+            (table_catalog, table_schema, table_name) >
+            (SELECT table_catalog, table_schema, table_name FROM decoded_values)
+        )
+        OR
+        (
+            @cursor IS NOT NULL AND @rel = 0 AND
+            (table_catalog, table_schema, table_name) <
+            (SELECT table_catalog, table_schema, table_name FROM decoded_values)
+        )
+    )
+)
+SELECT
+    table_catalog,
+    table_schema,
+    table_name,
+    __cursor
+FROM paged_query
+ORDER BY
+    table_catalog,
+    table_schema,
+    table_name
+LIMIT @limit
+OFFSET @offset;
+";
+        using var conn = CreateConnection();
+        conn.Open();
+        Console.WriteLine(sql);
+        var resp = await conn.QueryAsync(sql, new
+        {
+            query = query,
+            cursor = cursor,
+            rel = (int)rel,
+            limit = limit,
+            offset = offset
+        });
+        var results = resp.Cast<IDictionary<string, object>>().ToList();
+        return new CursorBasedResult
+        {
+            FirstCursor = results.FirstOrDefault()?["__cursor"]?.ToString(),
+            LastCursor = results.LastOrDefault()?["__cursor"]?.ToString(),
+            Items = results
+        };
+    }
+
 
     public override string GetUser(byte[] encryptedConnectionString)
     {

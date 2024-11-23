@@ -1,5 +1,6 @@
 using System.Data.SqlClient;
 using Dapper;
+using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
@@ -51,6 +52,12 @@ public class MySqlDataHelper : BaseDataHelper
     {
         return new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(encryptedConnectionString.DecryptAES()).Port.ToString();
     }
+
+    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    {
+        throw new NotImplementedException();
+    }
+
 
     public override string GetUser(byte[] encryptedConnectionString)
     {

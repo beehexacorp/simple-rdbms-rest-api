@@ -68,15 +68,19 @@ namespace SimpleRDBMSRestfulAPI.Middleware
             await _next(context);
 
             context.Response.Body.Seek(0, SeekOrigin.Begin);
-            var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
+            
+            var ignoredSegments = new List<string> { "/api/history/log-detail", "/api/history/download", "/dashboard" };
+            if (!ignoredSegments.Any(s => context.Request.Path.StartsWithSegments(s)))
+            {
+                var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
+                context.Response.Body.Seek(0, SeekOrigin.Begin);
+                var logMessage = new StringBuilder();
+                logMessage.AppendLine("HTTP Response Information:");
+                logMessage.AppendLine($"Status Code: {context.Response.StatusCode}");
+                logMessage.AppendLine($"Response Body: {responseBody}");
 
-            var logMessage = new StringBuilder();
-            logMessage.AppendLine("HTTP Response Information:");
-            logMessage.AppendLine($"Status Code: {context.Response.StatusCode}");
-            logMessage.AppendLine($"Response Body: {responseBody}");
-
-            Log.Information(logMessage.ToString());
+                Log.Information(logMessage.ToString());
+            }
 
             await responseBodyStream.CopyToAsync(originalBodyStream);
         }

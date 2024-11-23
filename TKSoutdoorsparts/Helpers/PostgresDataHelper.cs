@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Dapper;
 using Npgsql;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
@@ -52,8 +53,45 @@ OFFSET @offset";
         return query.Trim();
     }
 
-    public override IDbConnection CreateConnection()
+    public override async Task ConnectAsync(string connectionString)
     {
-        return new NpgsqlConnection(_appSettings.ConnectionString);
+        using var conn = CreateConnection(connectionString);
+        conn.Open();
+        var _ = await conn.QueryFirstOrDefaultAsync<bool?>(@"SELECT 1
+FROM information_schema.tables
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  AND table_type = 'BASE TABLE'
+LIMIT 1;");
     }
+
+
+    public override IDbConnection CreateConnection(string? connectionString = null)
+    {
+        return new NpgsqlConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+    }
+
+    public override string GetDatabase(byte[] encryptedConnectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.Database ?? "N/A";
+    }
+
+    public override string GetHost(byte[] encryptedConnectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.Host ?? "N/A";
+    }
+
+    public override string GetPort(byte[] encryptedConnectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.Port.ToString();
+    }
+
+    public override string GetUser(byte[] encryptedConnectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.Username ?? "N/A";
+    }
+
 }

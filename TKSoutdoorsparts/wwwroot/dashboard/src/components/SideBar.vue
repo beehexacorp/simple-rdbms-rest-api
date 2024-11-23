@@ -8,24 +8,21 @@
             <video-camera-outlined />
             <span class="nav-text"><a href="/dashboard/documentation">Documentations</a></span>
         </a-menu-item>
+        <a-menu-item key="3">
+            <setting-outlined />
+            <span class="nav-text"><a href="/dashboard/settings">Settings</a></span>
+        </a-menu-item>
     </a-menu>
 </template>
+
 <script lang="ts" setup>
-import {
-    UserOutlined,
-    VideoCameraOutlined,
-    UploadOutlined,
-    BarChartOutlined,
-    CloudOutlined,
-    AppstoreOutlined,
-    TeamOutlined,
-    ShopOutlined,
-} from '@ant-design/icons-vue';
+import { BarChartOutlined, VideoCameraOutlined, SettingOutlined } from '@ant-design/icons-vue';
+
 defineProps({
     selectedKeys: {
         type: Array,
         required: false,
-        default: () => { return [] }
-    }
-})
+        default: () => [],
+    },
+});
 </script>

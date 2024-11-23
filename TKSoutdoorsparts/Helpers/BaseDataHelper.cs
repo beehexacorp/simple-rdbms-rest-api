@@ -13,7 +13,9 @@ public abstract class BaseDataHelper : IDataHelper
     public abstract DbType DbType { get; }
 
     public abstract string BuildQuery(EntityRequestMetadata request);
-    public abstract IDbConnection CreateConnection();
+    public abstract Task ConnectAsync(string connectionString);
+
+    public abstract IDbConnection CreateConnection(string? connectionString = null);
 
     public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(
         string query,
@@ -31,6 +33,12 @@ public abstract class BaseDataHelper : IDataHelper
         var data = result.Cast<IDictionary<string, object>>().ToList();
         return data;
     }
+
+    public abstract string GetDatabase(byte[] encryptedConnectionString);
+    public abstract string GetHost(byte[] encryptedConnectionString);
+    public abstract string GetPort(byte[] encryptedConnectionString);
+    public abstract string GetUser(byte[] encryptedConnectionString);
+
 
     protected virtual object ConvertJsonElement(JsonElement jsonElement)
     {

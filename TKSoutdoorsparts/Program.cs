@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AutoMapper;
 using MessagePack.AspNetCoreMvcFormatter;
 using MessagePack.Resolvers;
 using Microsoft.AspNetCore.Diagnostics;
@@ -18,10 +19,7 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Register the log
-var logPath = Path.Combine(
-    Directory.GetCurrentDirectory(),
-    "log.txt"
-);
+var logPath = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
 
 // Log by day
 Log.Logger = new LoggerConfiguration()
@@ -98,6 +96,21 @@ builder.Services.AddCors(options =>
                 .AllowCredentials();
         });
     }
+});
+
+builder.Services.AddSingleton(provider =>
+{
+    var autoMapperConfig = new MapperConfiguration(cfg =>
+        {
+            cfg.AllowNullCollections = true;
+            cfg.AllowNullDestinationValues = true;
+            // cfg.AddMaps(typeof(ConnectionInfoMapper).Assembly);
+            cfg.AddProfile(new ConnectionInfoMapper(provider));
+        });
+
+    autoMapperConfig.AssertConfigurationIsValid();
+    var mapper = autoMapperConfig.CreateMapper();
+    return mapper;
 });
 
 var app = builder.Build();

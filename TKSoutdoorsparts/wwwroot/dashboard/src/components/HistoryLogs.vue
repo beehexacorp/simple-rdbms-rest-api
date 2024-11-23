@@ -69,6 +69,7 @@ const updateHistoryLogs = async () => {
     } catch (error) {
         histories.value = [];
         $message('error', 'Failed to fetch history logs. Please try again later.', error);
+        throw error;
     }
 };
 
@@ -80,6 +81,7 @@ const onReadLogDetail = async (history: LogEntry) => {
         isDrawerVisible.value = true;
     } catch (error) {
         $message('error', 'Error fetching log detail. Please try again later.', error);
+        throw error;
     }
 };
 
@@ -90,6 +92,7 @@ const handleDownload = async () => {
         $message('success', 'File downloaded successfully!');
     } catch (error) {
         $message('error', 'Error downloading log file. Please try again later.', error);
+        throw error;
     }
 };
 

@@ -1,4 +1,5 @@
 using System.Data.SqlClient;
+using Dapper;
 using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
@@ -22,8 +23,62 @@ public class SqlServerDataHelper : BaseDataHelper
         throw new NotImplementedException();
     }
 
-    public override System.Data.IDbConnection CreateConnection()
+    public override async Task ConnectAsync(string connectionString)
     {
-        return new SqlConnection(_appSettings.ConnectionString);
+        using var conn = CreateConnection(connectionString);
+        conn.Open();
+        var _ = await conn.QueryFirstOrDefaultAsync<bool?>(@"SELECT TOP 1 1
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+ORDER BY TABLE_NAME;");
+    }
+
+    public override System.Data.IDbConnection CreateConnection(string? connectionString = null)
+    {
+        return new SqlConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+    }
+
+    public override string GetDatabase(byte[] encryptedConnectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.InitialCatalog;
+    }
+
+    public override string GetHost(byte[] encryptedConnectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return ParseHost(builder.DataSource);
+    }
+
+    public override string GetPort(byte[] encryptedConnectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return ParsePort(builder.DataSource);
+    }
+
+    public override string GetUser(byte[] encryptedConnectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.UserID;
+    }
+
+    // Helper method to parse host from DataSource
+    static string ParseHost(string dataSource)
+    {
+        if (dataSource.Contains(","))
+        {
+            return dataSource.Split(',')[0];
+        }
+        return dataSource;
+    }
+
+    // Helper method to parse port from DataSource
+    static string ParsePort(string dataSource)
+    {
+        if (dataSource.Contains(","))
+        {
+            return dataSource.Split(',')[1];
+        }
+        return "1433"; // Default SQL Server port
     }
 }

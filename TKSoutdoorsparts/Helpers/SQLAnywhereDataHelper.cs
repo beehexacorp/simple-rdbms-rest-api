@@ -1,4 +1,5 @@
 ﻿using System.Data.Odbc;
+using Dapper;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
@@ -51,8 +52,65 @@ FROM {request.TableName}
         return query.Trim();
     }
 
-    public override System.Data.IDbConnection CreateConnection()
+    public override async Task ConnectAsync(string connectionString)
     {
-        return new OdbcConnection(_appSettings.ConnectionString);
+        using var conn = CreateConnection(connectionString);
+        conn.Open();
+        var _ = await conn.QueryFirstOrDefaultAsync<bool?>(@"SELECT 1
+FROM SYS.SYSTABLE
+WHERE creator NOT IN ('SYS', 'dbo')
+  AND table_type = 'BASE';");
+    }
+
+
+    public override System.Data.IDbConnection CreateConnection(string? connectionString)
+    {
+        return new OdbcConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+    }
+
+    public override string GetDatabase(byte[] encryptedConnectionString)
+    {
+        var builder = new OdbcConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.ContainsKey("DatabaseName") ? builder["DatabaseName"].ToString() ?? "N/A" : "N/A";
+    }
+
+    public override string GetHost(byte[] encryptedConnectionString)
+    {
+        var builder = new OdbcConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.ContainsKey("Host") && builder["Host"]?.ToString() != null ? ParseHost(builder["Host"].ToString()!) : "N/A";
+    }
+
+    public override string GetPort(byte[] encryptedConnectionString)
+    {
+        var builder = new OdbcConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.ContainsKey("Host") && builder["Host"]?.ToString() != null ? ParsePort(builder["Host"].ToString()!) : "N/A";
+    }
+
+    public override string GetUser(byte[] encryptedConnectionString)
+    {
+        var builder = new OdbcConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        return builder.ContainsKey("Uid") ? builder["Uid"].ToString() ?? "N/A" : "N/A";
+    }
+
+    // Helper method to parse host from Host key
+    static string ParseHost(string hostString)
+    {
+        if (hostString.Contains(":"))
+        {
+            var parts = hostString.Split(':');
+            return parts.Length > 0 ? parts[0] : "N/A";
+        }
+        return hostString;
+    }
+
+    // Helper method to parse port from Host key
+    static string ParsePort(string hostString)
+    {
+        if (hostString.Contains(":"))
+        {
+            var parts = hostString.Split(':');
+            return parts.Length > 1 ? parts[1] : "N/A";
+        }
+        return "N/A";
     }
 }

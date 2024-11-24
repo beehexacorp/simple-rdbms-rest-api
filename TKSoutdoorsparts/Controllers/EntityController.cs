@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +33,32 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         }
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
         var results = await dbHelper.GetTables(query, rel, cursor, limit, offset);
+        return Ok(results);
+    }
+
+    [HttpGet("detail")]
+    public async Task<IActionResult> GetDetail([FromQuery] string detailEncoded)
+    {
+        if (string.IsNullOrWhiteSpace(detailEncoded))
+        {
+            return BadRequest("Detail parameter is required.");
+        }
+
+        // Decode the Base64 string
+        var jsonString = Encoding.UTF8.GetString(Convert.FromBase64String(detailEncoded));
+
+        // Deserialize into a dictionary
+        var data = JsonSerializer.Deserialize<IDictionary<string, object>>(jsonString);
+
+        var connectonInfo = appSettings.GetConnectionInfo();
+        if (connectonInfo?.ConnectionString == null)
+        {
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+        }
+
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
+        var results = await dbHelper.GetTableFields(data);
+        // Return the parsed object
         return Ok(results);
     }
 

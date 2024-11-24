@@ -38,6 +38,8 @@ public abstract class BaseDataHelper : IDataHelper
     public abstract string GetDatabase(byte[] encryptedConnectionString);
     public abstract string GetHost(byte[] encryptedConnectionString);
     public abstract string GetPort(byte[] encryptedConnectionString);
+    public abstract Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data);
+
     public abstract Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset);
 
     public abstract string GetUser(byte[] encryptedConnectionString);

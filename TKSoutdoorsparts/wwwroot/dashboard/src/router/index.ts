@@ -26,6 +26,12 @@ const router = createRouter({
       name: 'settings',
       component: () => import('../views/Settings.vue'),
     },
+    {
+      path: '/documentation/entity/detail',
+      name: 'documentation-entity-detail',
+      component: () => import('../views/EntityDetailView.vue'),
+      props: (route) => ({ detail: route.query.detail }), // Pass query parameter as props
+    }
   ],
 })
 

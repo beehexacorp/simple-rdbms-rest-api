@@ -53,6 +53,12 @@ public class MySqlDataHelper : BaseDataHelper
         return new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(encryptedConnectionString.DecryptAES()).Port.ToString();
     }
 
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    {
+        throw new NotImplementedException();
+    }
+
+
     public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
     {
         throw new NotImplementedException();

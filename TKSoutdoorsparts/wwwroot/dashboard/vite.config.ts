@@ -11,17 +11,19 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import * as dotenv from 'dotenv'
 
 // Load environment variables manually
-dotenv.config()
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config()
+}
 
-console.log('Base Directory', process.env.VITE_BASE || '/dashboard/dist/')
-console.log('Port', Number(process.env.VITE_PORT) || 3000)
+const port = (process.env.NODE_ENV !== 'production' && Number(process.env.VITE_PORT)) || 3000
+console.log('Port', port)
 console.log(fileURLToPath(new URL('./src', import.meta.url)))
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/dashboard',
   server: {
-    port: Number(process.env.VITE_PORT) || 3000,
+    port: port,
   },
   plugins: [
     vue(),
@@ -34,6 +36,7 @@ export default defineConfig({
       resolvers: [
         AntDesignVueResolver({
           importStyle: false, // css in js
+          resolveIcons: true, // Ensure icons are resolved on-demand
         }),
       ],
     }),
@@ -91,7 +94,9 @@ export default defineConfig({
             return 'vendor'
           }
         },
-        chunkFileNames: 'chunks/[name]-[hash].js', // Specify the output folder for chunks
+        entryFileNames: 'assets/[name]-[hash].js', // File naming format for chunks
+        chunkFileNames: 'assets/[name]-[hash].js', // File naming format for shared chunks
+        assetFileNames: 'assets/[name]-[hash][extname]', // File naming format for static assets
       },
     },
     outDir: 'dist', // Ensure the output folder matches the base
@@ -101,6 +106,11 @@ export default defineConfig({
   optimizeDeps: {
     include: ['ant-design-vue'],
     exclude: ['@ant-design/icons-vue'],
+    esbuildOptions: {
+      target: 'esnext',
+      splitting: true,
+      format: 'esm',
+    },
   },
   resolve: {
     alias: {

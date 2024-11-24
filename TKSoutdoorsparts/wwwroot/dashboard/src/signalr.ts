@@ -1,8 +1,9 @@
 import * as signalR from '@microsoft/signalr'
 
-const notificationHubUrl = import.meta.env.VITE_NOTIFICATION_HUB_URL
-  ? `${import.meta.env.VITE_NOTIFICATION_HUB_URL}/notification-hub`
-  : '/notification-hub'
+const notificationHubUrl =
+  process.env.NODE_ENV !== 'production' && import.meta.env.VITE_NOTIFICATION_HUB_URL
+    ? `${import.meta.env.VITE_NOTIFICATION_HUB_URL}/notification-hub`
+    : '/notification-hub'
 
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(notificationHubUrl) // Ensure this matches the backend SignalR endpoint

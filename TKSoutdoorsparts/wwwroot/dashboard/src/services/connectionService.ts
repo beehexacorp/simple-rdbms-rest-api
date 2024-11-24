@@ -17,61 +17,6 @@ export interface TestConnectionRequest {
 }
 
 /**
- * Interface for the CursorBasedResult returned by `getTables`.
- */
-export interface CursorBasedResult {
-  firstCursor: string | null
-  lastCursor: string | null
-  items: Array<Record<string, unknown>>
-}
-
-/**
- * Fetch tables with cursor-based pagination.
- * @param query The search query for filtering table names (optional).
- * @param rel The cursor direction (0 for previous, 1 for next).
- * @param cursor The base64-encoded cursor string (optional).
- * @param limit The number of items per page.
- * @param offset The number of items to skip (default is 0).
- * @returns A `CursorBasedResult` containing the items and cursors for pagination.
- */
-export const getTables = async (
-  query: string | null = null,
-  rel: number = 1,
-  cursor: string | null = null,
-  limit: number = 100,
-  offset: number = 0
-): Promise<CursorBasedResult> => {
-  const apiUrl = serviceEndpointHandler.normalize('api/entity')
-
-  const urlParams = new URLSearchParams({
-    rel: rel.toString(),
-    limit: limit.toString(),
-    offset: offset.toString(),
-  })
-
-  if (query) {
-    urlParams.append('q', query)
-  }
-  if (cursor) {
-    urlParams.append('cursor', cursor)
-  }
-
-  const response = await fetch(`${apiUrl}?${urlParams.toString()}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    const { errorMessage } = await response.json()
-    throw new Error(errorMessage)
-  }
-
-  return await response.json()
-}
-
-/**
  * Fetch the current connection info.
  * @returns ConnectionInfoViewModel or null if no connection info is available.
  */

@@ -102,4 +102,8 @@ public class OracleDataHelper : BaseDataHelper
         throw new NotImplementedException();
     }
 
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    {
+        throw new NotImplementedException();
+    }
 }

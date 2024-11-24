@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text.Json;
 using Dapper;
 using Npgsql;
 using SimpleRDBMSRestfulAPI.Core;
@@ -89,6 +90,46 @@ LIMIT 1;");
         return builder.Port.ToString();
     }
 
+    public override async Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    {
+        if (data == null || !data.ContainsKey("table_catalog") || !data.ContainsKey("table_schema") || !data.ContainsKey("table_name"))
+        {
+            throw new Exception("Should provide table_catalog, table_schema and table_name");
+        }
+        var tableCatalog = data["table_catalog"].ToString();
+        var tableSchema = data["table_schema"].ToString();
+        var tableName = data["table_name"].ToString();
+        using var conn = CreateConnection();
+        conn.Open();
+        var sql = @"SELECT 
+    column_name,
+    data_type,
+    is_nullable,
+    character_maximum_length,
+    numeric_precision,
+    numeric_scale,
+    column_default
+FROM 
+    information_schema.columns
+WHERE 
+    table_catalog = @tableCatalog AND 
+    table_schema = @tableSchema AND 
+    table_name = @tableName
+ORDER BY 
+    ordinal_position;";
+        var resp = await conn.QueryAsync(sql, new
+        {
+            tableCatalog,
+            tableSchema,
+            tableName
+        });
+        var results = resp.Cast<IDictionary<string, object>>().ToList();
+
+        Console.WriteLine(JsonSerializer.Serialize(results));
+        return results;
+    }
+
+
     public override async Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
     {
         var sql = @"WITH filtered_tables AS (
@@ -169,7 +210,6 @@ OFFSET @offset;
 ";
         using var conn = CreateConnection();
         conn.Open();
-        Console.WriteLine(sql);
         var resp = await conn.QueryAsync(sql, new
         {
             query = query,

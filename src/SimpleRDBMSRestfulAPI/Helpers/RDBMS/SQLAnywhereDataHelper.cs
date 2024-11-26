@@ -70,7 +70,9 @@ WHERE creator NOT IN ('SYS', 'dbo')
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        return new OdbcConnection(connectionString);
+
+        var builder = new OdbcConnectionStringBuilder(connectionString);
+        return new OdbcConnection(builder.ConnectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)

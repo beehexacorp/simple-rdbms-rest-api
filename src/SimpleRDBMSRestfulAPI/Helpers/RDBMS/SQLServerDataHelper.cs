@@ -40,7 +40,9 @@ ORDER BY TABLE_NAME;");
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        return new SqlConnection(connectionString);
+
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        return new SqlConnection(builder.ConnectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)

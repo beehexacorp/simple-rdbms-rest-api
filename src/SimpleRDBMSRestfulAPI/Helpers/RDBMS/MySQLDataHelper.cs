@@ -1,5 +1,6 @@
 using System.Data.SqlClient;
 using Dapper;
+using MySql.Data.MySqlClient;
 using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Libs;
 using SimpleRDBMSRestfulAPI.Models;
@@ -39,7 +40,8 @@ public class MySqlDataHelper : BaseDataHelper
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        return new SqlConnection(connectionString);
+        var builder = new MySqlConnectionStringBuilder(connectionString);
+        return new MySqlConnection(builder.ConnectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)

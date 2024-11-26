@@ -74,7 +74,9 @@ LIMIT 1;");
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        return new NpgsqlConnection(connectionString);
+
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+        return new NpgsqlConnection(builder.ConnectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)

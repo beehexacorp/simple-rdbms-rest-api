@@ -133,7 +133,7 @@ The `SqlController` is responsible for handling raw SQL queries. It also perform
 
 ### 3. Dashboard
 
-**Method**: `GET /api/{connectionId}/dashboard`
+**Method**: `GET /dashboard`
 
 This endpoint serves the dashboard UI, which allows users to:
 

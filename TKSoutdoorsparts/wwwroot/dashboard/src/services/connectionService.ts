@@ -1,4 +1,4 @@
-import { Connection } from '@/types/Connection'
+import type { Connection } from '@/types/Connection'
 import { useServiceEndpoint } from '@/utils/serviceEndpoint'
 
 const serviceEndpointHandler = useServiceEndpoint()

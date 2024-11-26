@@ -129,7 +129,7 @@
 import { ref, computed, onMounted, watch, defineProps } from 'vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { fetchConnectionInfo } from '@/services/connectionService'
-import { Connection } from '@/types/Connection'
+import type { Connection } from '@/types/Connection'
 
 // Props
 const props = defineProps({

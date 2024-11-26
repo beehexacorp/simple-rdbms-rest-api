@@ -47,14 +47,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import {
-  fetchConnectionInfos,
-  fetchDbTypes,
-  saveConnection,
-  SaveConnectionRequest,
-} from '@/services/connectionService'
-import { Connection } from '@/types/Connection'
-import { DbType } from '@/types/DbType'
+import { fetchConnectionInfos, fetchDbTypes, saveConnection } from '@/services/connectionService'
+import type { SaveConnectionRequest } from '@/services/connectionService'
+import type { Connection } from '@/types/Connection'
+import type { DbType } from '@/types/DbType'
 
 const connections = ref<Connection[]>([])
 const dbTypes = ref<DbType[]>([])

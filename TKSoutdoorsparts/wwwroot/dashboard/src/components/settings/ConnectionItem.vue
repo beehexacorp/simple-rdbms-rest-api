@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { tryConnect } from '@/services/connectionService'
-import { Connection } from '@/types/Connection'
+import type { Connection } from '@/types/Connection'
 import { useMessage } from '@/utils/message'
 
 const $message = useMessage()

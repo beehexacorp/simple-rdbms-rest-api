@@ -83,12 +83,12 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        string query = dbHelper.BuildQuery(entityRequest);
+        var queryData = dbHelper.BuildQuery(entityRequest);
 
         var decodedQuery = HttpUtility.UrlDecode(query);
         await sqlInjectionHelper.EnsureValid(decodedQuery);
 
-        var result = await dbHelper.GetData(connectonInfo, query, entityRequest.@params);
+        var result = await dbHelper.GetData(connectonInfo, queryData);
         return Ok(result);
     }
 }

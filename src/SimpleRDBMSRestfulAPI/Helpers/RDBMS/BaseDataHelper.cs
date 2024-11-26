@@ -14,18 +14,17 @@ public abstract class BaseDataHelper : IDataHelper
 
     public abstract DbType DbType { get; }
 
-    public abstract string BuildQuery(EntityRequestMetadata request);
+    public abstract (string query, Dictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request);
     public abstract Task ConnectAsync(string connectionString);
 
     public abstract IDbConnection CreateConnection(string connectionString);
 
     public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(
         Settings.ConnectionInfoDTO connectonInfo,
-        string query,
-        Dictionary<string, object>? @params
+        (string query, Dictionary<string, object> parameters) queryData
     )
     {
-        var convertedParams = @params?.ToDictionary(
+        var convertedParams = queryData.parameters?.ToDictionary(
             kvp => kvp.Key,
             kvp =>
                 kvp.Value is JsonElement jsonElement ? ConvertJsonElement(jsonElement) : kvp.Value
@@ -33,7 +32,7 @@ public abstract class BaseDataHelper : IDataHelper
 
         var connectionString = Convert.FromBase64String(connectonInfo.ConnectionString).DecryptAES();
         using IDbConnection connection = CreateConnection(connectionString);
-        var result = await connection.QueryAsync<dynamic>(query, convertedParams);
+        var result = await connection.QueryAsync<dynamic>(queryData.query, convertedParams);
         var data = result.Cast<IDictionary<string, object>>().ToList();
         return data;
     }

@@ -1,7 +1,9 @@
 using Serilog.Events;
 using Serilog.Core;
 using Microsoft.AspNetCore.SignalR;
+using SimpleRDBMSRestfulAPI.Libs;
 
+namespace SimpleRDBMSRestfulAPI.Libs;
 public class SignalRSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;

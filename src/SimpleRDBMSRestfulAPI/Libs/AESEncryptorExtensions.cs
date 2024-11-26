@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+namespace SimpleRDBMSRestfulAPI.Libs;
 
 public static class AESEncryptorExtensions
 {
@@ -20,7 +21,7 @@ public static class AESEncryptorExtensions
 
         return ms.ToArray(); // Convert encrypted data in MemoryStream to byte array
     }
-    
+
     public static string DecryptAES(this byte[] cipher, string key)
     {
         using Aes aes = Aes.Create();

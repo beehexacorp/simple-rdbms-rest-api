@@ -2,7 +2,9 @@ using Serilog;
 using Microsoft.AspNetCore.SignalR;
 using Serilog.Configuration;
 using SimpleRDBMSRestfulAPI;
+using SimpleRDBMSRestfulAPI.Libs;
 
+namespace SimpleRDBMSRestfulAPI.Libs;
 public static class SignalRLoggerConfigurationExtensions
 {
     public static LoggerConfiguration SignalR(

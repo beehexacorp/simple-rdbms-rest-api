@@ -3,7 +3,7 @@
 **/obj
 /obj
 **/.vs
-TKSoutdoorsparts/obj/
+SimpleRDBMSRestfulAPI/obj/
 .vs
 .idea
 node_modules

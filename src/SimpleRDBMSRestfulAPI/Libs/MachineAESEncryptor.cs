@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
 
-
+namespace SimpleRDBMSRestfulAPI.Libs;
 public static class MachineAESEncryptorExtensions
 {
     public static string GetMachineGuid()
@@ -29,9 +29,9 @@ public static class MachineAESEncryptorExtensions
                 CreateNoWindow = true
             };
 
-            using (Process process = Process.Start(psi))
+            using (Process process = Process.Start(psi)!)
             {
-                string output = process.StandardOutput.ReadToEnd();
+                string output = process!.StandardOutput.ReadToEnd();
                 process.WaitForExit();
 
                 if (string.IsNullOrWhiteSpace(output))

@@ -1,7 +1,7 @@
 
 using MessagePack;
 
-namespace SimpleRDBMSRestfulAPI.Core;
+namespace SimpleRDBMSRestfulAPI.Libs;
 
 
 [MessagePackObject]

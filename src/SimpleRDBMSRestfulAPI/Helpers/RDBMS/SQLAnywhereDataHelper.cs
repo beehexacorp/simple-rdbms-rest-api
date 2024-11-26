@@ -1,7 +1,7 @@
 ﻿using System.Data.Odbc;
 using Dapper;
 using SimpleRDBMSRestfulAPI.Constants;
-using SimpleRDBMSRestfulAPI.Core;
+using SimpleRDBMSRestfulAPI.Libs;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;

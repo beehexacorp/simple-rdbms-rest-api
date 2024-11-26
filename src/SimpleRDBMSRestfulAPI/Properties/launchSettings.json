@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "TKSoutdoorsparts": {
+    "SimpleRDBMSRestfulAPI": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

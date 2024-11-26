@@ -51,6 +51,8 @@ import { fetchConnectionInfos, fetchDbTypes, saveConnection } from '@/services/c
 import type { SaveConnectionRequest } from '@/services/connectionService'
 import type { Connection } from '@/types/Connection'
 import type { DbType } from '@/types/DbType'
+import { useMessage } from '@/utils/message'
+const $message = useMessage()
 
 const connections = ref<Connection[]>([])
 const dbTypes = ref<DbType[]>([])
@@ -82,7 +84,7 @@ const loadConnections = async () => {
     console.log(result)
     connections.value = result || []
   } catch (error: any) {
-    console.error('Failed to load connections:', error.message)
+    $message.error(`Failed to load connections: ${error.message}`)
   }
 }
 
@@ -90,7 +92,7 @@ const loadDbTypes = async () => {
   try {
     dbTypes.value = await fetchDbTypes()
   } catch (error: any) {
-    console.error('Failed to load database types:', error.message)
+    $message.error(`Failed to load database types: ${error.message}`)
   }
 }
 
@@ -111,7 +113,7 @@ const handleAddConnection = async () => {
     await loadConnections()
     closeAddConnectionModal()
   } catch (error: any) {
-    console.error('Failed to add connection:', error.message)
+    $message.error(`Failed to add connection: ${error.message}`)
   }
 }
 

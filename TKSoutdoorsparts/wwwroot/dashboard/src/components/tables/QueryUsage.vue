@@ -259,7 +259,10 @@ onMounted(async () => {
   try {
     connectionInfo.value = await fetchConnectionInfo()
     rawQuery.value.sql = generateSqlExample.value
-    entityQuery.value.fields = defaultFields.value.join('\n')
+    entityQuery.value.fields = props.tableColumns
+      .map((col: any) => col.column_name)
+      .filter((x) => !x.startsWith('__'))
+      .join('\n') //defaultFields.value
     console.log('Connection info fetched:', connectionInfo.value)
   } catch (error) {
     console.error('Failed to fetch connection info:', error)

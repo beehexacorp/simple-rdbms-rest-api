@@ -70,6 +70,7 @@ builder.Services.AddSingleton<SqlServerDataHelper>();
 builder.Services.AddSingleton<OracleDataHelper>();
 builder.Services.AddSingleton<MySqlDataHelper>();
 builder.Services.AddSingleton<PostgresDataHelper>();
+builder.Services.AddSingleton<ISqlInjectionHelper, SqlInjectionHelper>();
 
 builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(DbType.SQL_ANYWHERE);
 builder.Services.AddKeyedTransient<IDataHelper, SqlServerDataHelper>(DbType.SQL_SERVER);
@@ -160,7 +161,7 @@ app.MapFallbackToFile("/dashboard/{*path:nonfile}", "dashboard/dist/index.html")
 app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

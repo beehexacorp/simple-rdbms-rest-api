@@ -16,7 +16,7 @@ namespace SimpleRDBMSRestfulAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class EntityController(IAppSettings appSettings, IServiceProvider serviceProvider) : ControllerBase
+public class EntityController(IAppSettings appSettings, IServiceProvider serviceProvider, ISqlInjectionHelper sqlInjectionHelper) : ControllerBase
 {
     [HttpGet()]
     public async Task<IActionResult> GetTables(
@@ -82,24 +82,7 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         string query = dbHelper.BuildQuery(entityRequest);
 
         var decodedQuery = HttpUtility.UrlDecode(query);
-
-        var dangerousCommandsRegex = new Regex(
-            RegexConstants.dangerousCommands,
-            RegexOptions.IgnoreCase
-        );
-        if (dangerousCommandsRegex.IsMatch(decodedQuery))
-        {
-            return BadRequest(new { error = "Query contains forbidden SQL commands." });
-        }
-
-        var embeddedStringRegex = new Regex(
-            RegexConstants.embeddedString,
-            RegexOptions.IgnoreCase
-        );
-        if (embeddedStringRegex.IsMatch(decodedQuery))
-        {
-            return BadRequest(new { error = "Query contains forbidden SQL commands." });
-        }
+        await sqlInjectionHelper.EnsureValid(decodedQuery);
 
         var result = await dbHelper.GetData(query, entityRequest.@params);
         return Ok(result);

@@ -13,7 +13,7 @@ namespace SimpleRDBMSRestfulAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class SqlController(IAppSettings appSettings, IServiceProvider serviceProvider) : ControllerBase
+public class SqlController(IAppSettings appSettings, IServiceProvider serviceProvider, ISqlInjectionHelper sqlInjectionHelper) : ControllerBase
 {
 
     // TODO: /api/sql/update
@@ -29,30 +29,14 @@ public class SqlController(IAppSettings appSettings, IServiceProvider servicePro
         }
 
         var decodedQuery = HttpUtility.UrlDecode(queryRequest.Query);
-
-        var dangerousCommandsRegex = new Regex(
-            RegexConstants.dangerousCommands,
-            RegexOptions.IgnoreCase
-        );
-        if (dangerousCommandsRegex.IsMatch(decodedQuery))
-        {
-            return BadRequest(new { error = "Query contains forbidden SQL commands." });
-        }
-
-        var embeddedStringRegex = new Regex(
-            RegexConstants.embeddedString,
-            RegexOptions.IgnoreCase
-        );
-        if (embeddedStringRegex.IsMatch(decodedQuery))
-        {
-            return BadRequest(new { error = "Query contains forbidden SQL commands." });
-        }
+        await sqlInjectionHelper.EnsureValid(decodedQuery);
 
         var connectonInfo = appSettings.GetConnectionInfo();
         if (connectonInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
+
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
         var result = await dbHelper.GetData(decodedQuery, queryRequest.@params);
         return Ok(result);

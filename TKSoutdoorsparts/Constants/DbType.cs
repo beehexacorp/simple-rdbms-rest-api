@@ -1,11 +1,9 @@
-﻿namespace SimpleRDBMSRestfulAPI.Constants
+﻿namespace SimpleRDBMSRestfulAPI.Constants;
+public enum DbType
 {
-    public enum DbType
-    {
-        SQL_ANYWHERE,
-        SQL_SERVER,
-        ORACLE,
-        MYSQL,
-        POSTGRES,
-    }
+    SQL_ANYWHERE,
+    SQL_SERVER,
+    ORACLE,
+    MYSQL,
+    POSTGRES,
 }

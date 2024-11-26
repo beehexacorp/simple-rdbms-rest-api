@@ -73,7 +73,12 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
             return UnprocessableEntity(ModelState);
         }
 
-        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(entityRequest.DbType);
+        var connectonInfo = appSettings.GetConnectionInfo();
+        if (connectonInfo?.ConnectionString == null)
+        {
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+        }
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
         string query = dbHelper.BuildQuery(entityRequest);
 
         var decodedQuery = HttpUtility.UrlDecode(query);

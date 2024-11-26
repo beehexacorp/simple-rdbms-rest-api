@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Dapper;
 using Npgsql;
+using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
@@ -124,8 +125,6 @@ ORDER BY
             tableName
         });
         var results = resp.Cast<IDictionary<string, object>>().ToList();
-
-        Console.WriteLine(JsonSerializer.Serialize(results));
         return results;
     }
 

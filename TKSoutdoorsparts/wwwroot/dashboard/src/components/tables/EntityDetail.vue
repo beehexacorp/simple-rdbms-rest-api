@@ -1,17 +1,20 @@
 <template>
   <a-card class="entity-detail" title="Entity Information">
     <!-- Entity Information -->
-    <a-descriptions bordered column="1">
+    <a-descriptions bordered :column="3">
       <a-descriptions-item
-        v-for="[key, value] in Object.entries(parsedDetail).filter(
-          ([key]) => !key.startsWith('__'),
-        )"
+        v-for="[key, value] in Object.entries(tableInfo).filter(([key]) => !key.startsWith('__'))"
         :label="key"
         :key="key"
       >
         {{ value }}
       </a-descriptions-item>
     </a-descriptions>
+  </a-card>
+  <a-divider style="margin: 10px 0" />
+  <a-card class="query-usage" title="Examples">
+    <!-- Pass tableColumns to Query Usage -->
+    <query-usage :table-columns="allColumns" :table-info="tableInfo" />
   </a-card>
   <a-divider style="margin: 10px 0" />
   <a-card class="entity-detail" title="Entity Columns">
@@ -61,8 +64,8 @@ const route = useRoute()
 const detailEncoded = route.query.detail
 
 // Reactive state
-const parsedDetail = ref({})
-const details = ref([])
+const tableInfo = ref({})
+const allColumns = ref([])
 const filteredDetails = ref([])
 const searchQuery = ref('')
 const currentPage = ref(1)
@@ -77,6 +80,7 @@ const paginatedDetails = computed(() => {
   return filteredDetails.value.slice(start, end)
 })
 
+// Default columns based on filtered details
 const tableColumns = computed(() => {
   if (filteredDetails.value.length === 0) return []
   const keys = Object.keys(filteredDetails.value[0])
@@ -95,7 +99,7 @@ const decodeDetail = () => {
 
   try {
     const decodedString = atob(detailEncoded)
-    parsedDetail.value = JSON.parse(decodedString)
+    tableInfo.value = JSON.parse(decodedString)
   } catch (error) {
     console.error('Failed to decode or parse detail:', error)
   }
@@ -109,8 +113,8 @@ const fetchDetails = async () => {
     }
 
     const data = await getTableDetails(detailEncoded)
-    details.value = data
-    filteredDetails.value = details.value
+    allColumns.value = data
+    filteredDetails.value = allColumns.value
   } catch (error) {
     console.error(error)
   }
@@ -119,10 +123,10 @@ const fetchDetails = async () => {
 // Filter data using Fuse.js
 const filterData = () => {
   if (!searchQuery.value.trim()) {
-    filteredDetails.value = details.value
+    filteredDetails.value = allColumns.value
   } else {
-    const fuse = new Fuse(details.value, {
-      keys: Object.keys(details.value[0] || {}),
+    const fuse = new Fuse(allColumns.value, {
+      keys: Object.keys(allColumns.value[0] || {}),
       threshold: 0.4, // Allow typo-tolerant matches
       distance: 100, // Increase flexibility for matches
       minMatchCharLength: 1,

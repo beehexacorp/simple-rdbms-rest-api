@@ -16,9 +16,3 @@ public class CursorBasedResult
     [MessagePack.Key("items")]
     public IEnumerable<IDictionary<string, object>> Items { get; internal set; } = new List<IDictionary<string, object>>();
 }
-
-public enum CursorDirection
-{
-    Prev = 0,
-    Next = 1
-}

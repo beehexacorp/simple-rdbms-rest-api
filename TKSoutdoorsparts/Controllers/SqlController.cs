@@ -13,16 +13,8 @@ namespace SimpleRDBMSRestfulAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class SqlController : ControllerBase
+public class SqlController(IAppSettings appSettings, IServiceProvider serviceProvider) : ControllerBase
 {
-    private readonly IAppSettings _appSettings;
-    private readonly IServiceProvider _serviceProvider;
-
-    public SqlController(IAppSettings appSettings, IServiceProvider serviceProvider)
-    {
-        _appSettings = appSettings;
-        _serviceProvider = serviceProvider;
-    }
 
     // TODO: /api/sql/update
     // TODO: /api/sql/insert
@@ -56,7 +48,12 @@ public class SqlController : ControllerBase
             return BadRequest(new { error = "Query contains forbidden SQL commands." });
         }
 
-        var dbHelper = _serviceProvider.GetRequiredKeyedService<IDataHelper>(queryRequest.DbType);
+        var connectonInfo = appSettings.GetConnectionInfo();
+        if (connectonInfo?.ConnectionString == null)
+        {
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+        }
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
         var result = await dbHelper.GetData(decodedQuery, queryRequest.@params);
         return Ok(result);
     }

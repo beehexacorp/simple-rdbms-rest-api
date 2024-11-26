@@ -20,7 +20,7 @@ public class SqlAnywhereDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.SQL_ANYWHERE;
 
-    public override string BuildQuery(EntityRequestMetadata request)
+    public override (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request)
     {
         Dictionary<string, object> @params = request.@params ?? new Dictionary<string, object>();
         if (!@params.ContainsKey("top"))
@@ -51,7 +51,7 @@ public class SqlAnywhereDataHelper : BaseDataHelper
 FROM {request.TableName}
 {conditions}
 {request.OrderBy}";
-        return query.Trim();
+        return (query: query.Trim(), parameters: @params);
     }
 
     public override async Task ConnectAsync(string connectionString)

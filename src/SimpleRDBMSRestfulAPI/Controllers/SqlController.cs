@@ -40,7 +40,7 @@ public class SqlController(IAppSettings appSettings, IServiceProvider servicePro
         }
 
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var result = await dbHelper.GetData(connectonInfo, decodedQuery, queryRequest.@params);
+        var result = await dbHelper.GetData(connectonInfo, (decodedQuery, queryRequest.@params));
         return Ok(result);
     }
 }

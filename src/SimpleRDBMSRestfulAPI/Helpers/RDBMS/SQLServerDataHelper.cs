@@ -19,7 +19,7 @@ public class SqlServerDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.SQL_SERVER;
 
-    public override string BuildQuery(EntityRequestMetadata request)
+    public override (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request)
     {
         throw new NotImplementedException();
     }

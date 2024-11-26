@@ -85,8 +85,8 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
         var queryData = dbHelper.BuildQuery(entityRequest);
 
-        var decodedQuery = HttpUtility.UrlDecode(query);
-        await sqlInjectionHelper.EnsureValid(decodedQuery);
+        queryData.query = HttpUtility.UrlDecode(queryData.query);
+        await sqlInjectionHelper.EnsureValid(queryData.query);
 
         var result = await dbHelper.GetData(connectonInfo, queryData);
         return Ok(result);

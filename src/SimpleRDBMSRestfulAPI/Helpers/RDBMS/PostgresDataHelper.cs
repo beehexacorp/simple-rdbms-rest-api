@@ -22,10 +22,9 @@ public class PostgresDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.POSTGRES;
 
-    public override string BuildQuery(EntityRequestMetadata request)
+    public override (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request)
     {
-        Dictionary<string, object> @params = request.@params;
-        @params = @params ?? new Dictionary<string, object>();
+        Dictionary<string, object> @params = request.@params ?? new Dictionary<string, object>();
         if (!@params.ContainsKey("limit"))
         {
             throw new ArgumentNullException("The @limit param is required");
@@ -53,7 +52,7 @@ FROM {request.TableName}
 {request.OrderBy} 
 LIMIT @limit 
 OFFSET @offset";
-        return query.Trim();
+        return (query: query.Trim(), parameters: @params);
     }
 
     public override async Task ConnectAsync(string connectionString)

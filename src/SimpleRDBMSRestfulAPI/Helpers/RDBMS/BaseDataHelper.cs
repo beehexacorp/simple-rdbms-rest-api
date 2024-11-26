@@ -4,6 +4,7 @@ using Dapper;
 using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Libs;
 using SimpleRDBMSRestfulAPI.Models;
+using SimpleRDBMSRestfulAPI.Settings;
 using DbType = SimpleRDBMSRestfulAPI.Constants.DbType;
 
 namespace SimpleRDBMSRestfulAPI.Helpers;
@@ -14,14 +15,14 @@ public abstract class BaseDataHelper : IDataHelper
 
     public abstract DbType DbType { get; }
 
-    public abstract (string query, Dictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request);
+    public abstract (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request);
     public abstract Task ConnectAsync(string connectionString);
 
     public abstract IDbConnection CreateConnection(string connectionString);
 
     public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(
         Settings.ConnectionInfoDTO connectonInfo,
-        (string query, Dictionary<string, object> parameters) queryData
+        (string query, IDictionary<string, object> parameters) queryData
     )
     {
         var convertedParams = queryData.parameters?.ToDictionary(
@@ -74,4 +75,5 @@ public abstract class BaseDataHelper : IDataHelper
                 return jsonElement.ToString();
         }
     }
+
 }

@@ -21,7 +21,7 @@ public class MySqlDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.MYSQL;
 
-    public override string BuildQuery(EntityRequestMetadata request)
+    public override (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request)
     {
         throw new NotImplementedException();
     }

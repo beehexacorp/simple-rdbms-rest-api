@@ -20,7 +20,7 @@ public class OracleDataHelper : BaseDataHelper
 
     public override DbType DbType => DbType.ORACLE;
 
-    public override string BuildQuery(EntityRequestMetadata request)
+    public override (string query, IDictionary<string, object> parameters) BuildQuery(EntityRequestMetadata request)
     {
         throw new NotImplementedException();
     }

@@ -1,27 +1,25 @@
+import { Connection } from '@/types/Connection'
 import { useServiceEndpoint } from '@/utils/serviceEndpoint'
 
 const serviceEndpointHandler = useServiceEndpoint()
 
-export interface ConnectionInfoViewModel {
-  dbType: number // Assuming DbType is an enum represented as a number
-  database: string
-  host: string
-  port: string
-  user: string
-}
-
 export interface TestConnectionRequest {
   dbType?: number
   connectionString?: string
-  useConfig?: boolean // When true, it tests the connection using existing configs
+  connectonId?: string // When true, it tests the connection using existing configs
+}
+
+export interface SaveConnectionRequest {
+  dbType: number
+  connectionString: string
 }
 
 /**
  * Fetch the current connection info.
- * @returns ConnectionInfoViewModel or null if no connection info is available.
+ * @returns Connection[] or null if no connection info is available.
  */
-export const fetchConnectionInfo = async (): Promise<ConnectionInfoViewModel | null> => {
-  const apiUrl = serviceEndpointHandler.normalize('api/connection')
+export const fetchConnectionInfos = async (): Promise<Connection[] | null> => {
+  const apiUrl = serviceEndpointHandler.normalize(`api/connection`)
   const response = await fetch(apiUrl, {
     method: 'GET',
     headers: {
@@ -42,6 +40,31 @@ export const fetchConnectionInfo = async (): Promise<ConnectionInfoViewModel | n
   return await response.json()
 }
 
+/**
+ * Fetch the current connection info.
+ * @returns Connection or null if no connection info is available.
+ */
+export const fetchConnectionInfo = async (connectionId: string): Promise<Connection | null> => {
+  const apiUrl = serviceEndpointHandler.normalize(`api/connection/${connectionId}`)
+  const response = await fetch(apiUrl, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (response.status === 204) {
+    // No content, indicating no connection info available
+    return null
+  }
+
+  if (!response.ok) {
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
+  }
+
+  return await response.json()
+}
 /**
  * Fetch the database types.
  * @returns An array of database type options.
@@ -73,7 +96,9 @@ export const fetchDbTypes = async (): Promise<{ value: number; label: string }[]
  */
 export const tryConnect = async (request: TestConnectionRequest): Promise<void> => {
   const apiUrl = serviceEndpointHandler.normalize(
-    request.useConfig ? 'api/connection/connect-from-configs' : 'api/connection/connect',
+    !!request.connectonId
+      ? `api/connection/${request.connectonId}/connect`
+      : 'api/connection/connect',
   )
 
   const response = await fetch(apiUrl, {
@@ -88,8 +113,12 @@ export const tryConnect = async (request: TestConnectionRequest): Promise<void> 
   })
 
   if (!response.ok) {
-    const { errorMessage } = await response.json()
-    throw new Error(errorMessage)
+    const { errorMessage, errors } = await response.json()
+    if (errors && Object.keys(errors).length > 0) {
+      throw new Error(errors[Object.keys(errors)[0]])
+    } else {
+      throw new Error(errorMessage)
+    }
   }
 }
 
@@ -97,7 +126,7 @@ export const tryConnect = async (request: TestConnectionRequest): Promise<void> 
  * Save the database connection.
  * @param request The connection info to save.
  */
-export const saveConnection = async (request: TestConnectionRequest): Promise<void> => {
+export const saveConnection = async (request: SaveConnectionRequest): Promise<void> => {
   const apiUrl = serviceEndpointHandler.normalize('api/connection')
   const response = await fetch(apiUrl, {
     method: 'POST',

@@ -129,10 +129,14 @@
 import { ref, computed, onMounted, watch, defineProps } from 'vue'
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import { fetchConnectionInfo } from '@/services/connectionService'
-import type { ConnectionInfoViewModel } from '@/services/connectionService'
+import { Connection } from '@/types/Connection'
 
 // Props
 const props = defineProps({
+  connectionId: {
+    type: String,
+    required: true,
+  },
   tableColumns: {
     type: Array,
     required: true,
@@ -144,7 +148,7 @@ const props = defineProps({
 })
 
 // Reactive state
-const connectionInfo = ref<ConnectionInfoViewModel | null>(null)
+const connectionInfo = ref<Connection | null>(null)
 const activeTab = ref('entity-query')
 const entityQuery = ref({
   tableName: '',
@@ -201,7 +205,10 @@ LIMIT 10 OFFSET 0`
 
 // Translate inputs to cURL command
 const translatedCurl = computed(() => {
-  const url = activeTab.value === 'entity-query' ? '/api/entity/query' : '/api/sql/query'
+  const url =
+    activeTab.value === 'entity-query'
+      ? `/api/entity/${props.connectionId}/query`
+      : `/api/sql/${props.connectionId}/query`
   const body =
     activeTab.value === 'entity-query'
       ? {
@@ -257,7 +264,7 @@ watch(
 // Fetch connection info on mounted
 onMounted(async () => {
   try {
-    connectionInfo.value = await fetchConnectionInfo()
+    connectionInfo.value = await fetchConnectionInfo(props.connectionId)
     rawQuery.value.sql = generateSqlExample.value
     entityQuery.value.fields = props.tableColumns
       .map((col: any) => col.column_name)

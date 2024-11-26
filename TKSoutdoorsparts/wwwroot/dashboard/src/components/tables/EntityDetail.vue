@@ -14,7 +14,7 @@
   <a-divider style="margin: 10px 0" />
   <a-card class="query-usage" title="Examples">
     <!-- Pass tableColumns to Query Usage -->
-    <query-usage :table-columns="allColumns" :table-info="tableInfo" />
+    <query-usage :connection-id="connectionId" :table-columns="allColumns" :table-info="tableInfo" />
   </a-card>
   <a-divider style="margin: 10px 0" />
   <a-card class="entity-detail" title="Entity Columns">
@@ -62,6 +62,7 @@ import { useRoute } from 'vue-router'
 // Query the "detail" parameter from the route
 const route = useRoute()
 const detailEncoded = route.query.detail
+const connectionId = route.query.connectionId
 
 // Reactive state
 const tableInfo = ref({})
@@ -111,8 +112,8 @@ const fetchDetails = async () => {
     if (!detailEncoded) {
       throw new Error('Detail parameter is missing')
     }
-
-    const data = await getTableDetails(detailEncoded)
+    console.log(connectionId, detailEncoded)
+    const data = await getTableDetails(connectionId, detailEncoded)
     allColumns.value = data
     filteredDetails.value = allColumns.value
   } catch (error) {

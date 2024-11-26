@@ -1,154 +1,126 @@
 <template>
-  <a-card title="Database Connection" class="database-connection" :bordered="false">
-    <!-- Connection Info Section -->
-    <template v-if="connectionInfo">
-      <a-row>
-        <a-col :span="24">
-          <p><strong>Database Type:</strong> {{ connectionInfo.dbType }}</p>
-          <p><strong>Database:</strong> {{ connectionInfo.database }}</p>
-          <p><strong>Host:</strong> {{ connectionInfo.host }}</p>
-          <p><strong>Port:</strong> {{ connectionInfo.port }}</p>
-          <p><strong>User:</strong> {{ connectionInfo.user }}</p>
-        </a-col>
-        <a-col :span="24" style="margin-top: 20px">
-          <a-button type="primary" @click="testConnectionFromConfigs">Test Connection</a-button>
-        </a-col>
-      </a-row>
-    </template>
+  <a-card title="Connections Settings" :bordered="false">
+    <a-button type="primary" @click="showAddConnectionModal">Add Connection</a-button>
+    <a-divider></a-divider>
+    <a-list :dataSource="connections" bordered>
+      <template #renderItem="{ item }">
+        <connection-item :connection="item" />
+      </template>
+    </a-list>
 
-    <!-- Connection Form Section -->
-    <template v-else>
-      <a-form layout="vertical" @submit.prevent="saveConnectionInfo">
-        <a-form-item label="Database Type">
+    <a-modal
+      v-model:open="isAddConnectionModalVisible"
+      title="Add Connection"
+      @ok="handleAddConnection"
+      @cancel="closeAddConnectionModal"
+    >
+      <a-form ref="addConnectionForm" layout="vertical" :model="newConnection">
+        <a-form-item
+          label="Database Type"
+          name="dbType"
+          :rules="[{ required: true, message: 'Please select a database type' }]"
+        >
           <a-select
-            v-model:value="selectedDbType"
-            @change="onDbTypeChanged"
-            :options="dbTypes"
+            v-model:value="newConnection.dbType"
             placeholder="Select Database Type"
-          />
+            @change="updateDefaultConnectionString"
+          >
+            <a-select-option v-for="dbType in dbTypes" :key="dbType.value" :value="dbType.value">
+              {{ dbType.label }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
-        <a-form-item label="Connection String">
+        <a-form-item
+          label="Connection String"
+          name="connectionString"
+          :rules="[{ required: true, message: 'Connection string is required' }]"
+        >
           <a-input
-            v-model:value.lazy="connectionString"
+            v-model:value="newConnection.connectionString"
             :placeholder="connectionStringPlaceholder"
           />
         </a-form-item>
-        <a-form-item>
-          <a-button type="primary" @click="testConnection">Test Connection</a-button>
-          <a-button style="margin-left: 10px" @click="saveConnectionInfo">Save</a-button>
-        </a-form-item>
       </a-form>
-    </template>
+    </a-modal>
   </a-card>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import {
-  fetchConnectionInfo,
+  fetchConnectionInfos,
   fetchDbTypes,
-  tryConnect,
   saveConnection,
+  SaveConnectionRequest,
 } from '@/services/connectionService'
-import type { ConnectionInfoViewModel } from '@/services/connectionService'
-import { useMessage } from '@/utils/message'
+import { Connection } from '@/types/Connection'
+import { DbType } from '@/types/DbType'
 
-const $message = useMessage()
-
-// Reactive data
-const connectionInfo = ref<ConnectionInfoViewModel | null>(null)
-const dbTypes = ref<{ value: number; label: string }[]>([])
-const selectedDbType = ref<number | null>(4)
-const connectionString = ref<string>('')
-
-// Placeholder for connection string
-const connectionStringPlaceholder = computed(() => {
-  switch (selectedDbType.value) {
-    case 0: // SQL_ANYWHERE
-      return 'e.g., Anywhere:ENG=server_name;DBN=database_name;UID=user;PWD=password;'
-    case 1: // SQL_SERVER
-      return 'e.g., Server=server_name;Database=database_name;User Id=user;Password=password;'
-    case 2: // ORACLE
-      return 'e.g., (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=host)(PORT=port))(CONNECT_DATA=(SERVICE_NAME=service_name)))'
-    case 3: // MYSQL
-      return 'e.g., mysql://user:password@host:port/database'
-    case 4: // POSTGRES
-      return 'e.g., postgresql://user:password@host:port/database'
-    default:
-      return 'Enter connection string...'
-  }
+const connections = ref<Connection[]>([])
+const dbTypes = ref<DbType[]>([])
+const isAddConnectionModalVisible = ref(false)
+const addConnectionForm = ref()
+const connectionStringPlaceholder = ref('')
+const newConnection = ref<SaveConnectionRequest>({
+  dbType: 4,
+  connectionString: '',
 })
 
-// // Watcher for database type changes (optional)
-// watch(selectedDbType, (newType, oldType) => {
-//     // Reset connection string when database type changes
-//     connectionString.value = "";
-// });
-
-const onDbTypeChanged = (v: number) => {
-  console.log(`Database type changed from ${selectedDbType.value} to ${v}`)
-  selectedDbType.value = v
-  connectionString.value = ''
+// Define default placeholders for different database types
+const defaultConnectionStrings: Record<number, string> = {
+  0: 'Driver={SQL Anywhere};Server=servername;Database=dbname;Uid=username;Pwd=password;', // SQL Anywhere (ODBC)
+  1: 'Driver={Oracle};Dbq=//host:port/servicename;Uid=username;Pwd=password;', // Oracle (ODBC)
+  2: 'Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;', // SQL Server
+  3: 'Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;', // MySQL
+  4: 'Server=myServer;Port=5432;Database=mydb;Userid=myuser;Password=mypassword;', // Postgres (Npgsql)
 }
 
-// Load connection info and database types
-const loadConnectionSettings = async () => {
+const updateDefaultConnectionString = () => {
+  connectionStringPlaceholder.value =
+    defaultConnectionStrings[newConnection.value.dbType] || 'Enter your connection string'
+}
+
+const loadConnections = async () => {
+  try {
+    const result = await fetchConnectionInfos()
+    console.log(result)
+    connections.value = result || []
+  } catch (error: any) {
+    console.error('Failed to load connections:', error.message)
+  }
+}
+
+const loadDbTypes = async () => {
   try {
     dbTypes.value = await fetchDbTypes()
-    selectedDbType.value = 4
-    connectionInfo.value = await fetchConnectionInfo()
-  } catch (error) {
-    $message('error', `Error loading connection settings: ${error}`, error)
+  } catch (error: any) {
+    console.error('Failed to load database types:', error.message)
   }
 }
 
-// Test connection from configs
-const testConnectionFromConfigs = async () => {
+const showAddConnectionModal = () => {
+  isAddConnectionModalVisible.value = true
+  updateDefaultConnectionString()
+}
+
+const closeAddConnectionModal = () => {
+  isAddConnectionModalVisible.value = false
+  addConnectionForm.value?.resetFields()
+}
+
+const handleAddConnection = async () => {
   try {
-    await tryConnect({ useConfig: true })
-    $message('success', 'Connection successful!')
-  } catch (error) {
-    $message('error', `Connection test failed: ${error}`, error)
+    await addConnectionForm.value?.validate()
+    await saveConnection(newConnection.value!)
+    await loadConnections()
+    closeAddConnectionModal()
+  } catch (error: any) {
+    console.error('Failed to add connection:', error.message)
   }
 }
 
-// Test connection with user input
-const testConnection = async () => {
-  try {
-    if (!selectedDbType.value || !connectionString.value) {
-      throw new Error('Database type and connection string are required.')
-    }
-    await tryConnect({
-      dbType: selectedDbType.value,
-      connectionString: connectionString.value,
-    })
-    $message('success', 'Connection successful!')
-  } catch (error) {
-    $message('error', `Connection test failed: ${error}`, error)
-  }
-}
-
-// Save connection
-const saveConnectionInfo = async () => {
-  try {
-    if (!selectedDbType.value || !connectionString.value) {
-      throw new Error('Database type and connection string are required.')
-    }
-    await saveConnection({
-      dbType: selectedDbType.value,
-      connectionString: connectionString.value,
-    })
-    $message('success', 'Connection saved!')
-  } catch (error) {
-    $message('error', `Failed to save connection: ${error}`, error)
-  }
-}
-
-// Lifecycle hooks
-onMounted(loadConnectionSettings)
+onMounted(async () => {
+  await loadConnections()
+  await loadDbTypes()
+})
 </script>
-
-<style scoped>
-.database-connection {
-}
-</style>

@@ -39,7 +39,7 @@ public class AppSettings : IAppSettings
 
     public IEnumerable<ConnectionInfoDTO> GetConnectionInfos()
     {
-        if (_connectionInfos != null)
+        if (_connectionInfos != null && _connectionInfos.Any())
         {
             return _connectionInfos;
         }

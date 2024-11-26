@@ -1,10 +1,24 @@
 import { message } from 'ant-design-vue'
 
 export function useMessage() {
-  return async (logLevel: 'success' | 'error', content: string, exception?: any) => {
-    message[logLevel]({
-      content,
-      duration: 10,
-    })
+  return {
+    error: (content: string) => {
+      message['error']({
+        content,
+        duration: 10,
+      })
+    },
+    success: (content: string) => {
+      message['success']({
+        content,
+        duration: 10,
+      })
+    },
+    info: (content: string) => {
+      message['info']({
+        content,
+        duration: 10,
+      })
+    },
   }
 }

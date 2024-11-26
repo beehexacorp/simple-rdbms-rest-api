@@ -66,7 +66,7 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
     }
 
     // /api/sql/query
-    [HttpPost("query")]
+    [HttpPost("{connectionId}/query")]
     public async Task<IActionResult> GetData(
         [FromRoute] Guid connectionId,
         [FromBody, Required] EntityRequestMetadata entityRequest

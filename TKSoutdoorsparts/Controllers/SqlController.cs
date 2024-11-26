@@ -20,7 +20,7 @@ public class SqlController(IAppSettings appSettings, IServiceProvider servicePro
     // TODO: /api/sql/insert
 
     // /api/sql/query
-    [HttpPost("query")]
+    [HttpPost("{connectionId}/query")]
     public async Task<IActionResult> GetData(
         [FromRoute] Guid connectionId,
         [FromBody, Required] QueryRequestMetadata queryRequest)

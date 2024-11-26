@@ -14,13 +14,14 @@ const serviceEndpointHandler = useServiceEndpoint()
  * @returns A `CursorBasedResult` containing the items and cursors for pagination.
  */
 export const getTables = async (
+  connectionId: string,
   query: string | null = null,
   rel: number = 1,
   cursor: string | null = null,
   limit: number = 100,
   offset: number = 0,
 ): Promise<CursorBasedResult> => {
-  const apiUrl = serviceEndpointHandler.normalize('api/entity')
+  const apiUrl = serviceEndpointHandler.normalize(`api/entity/${connectionId}/tables`)
 
   const urlParams = new URLSearchParams({
     rel: rel.toString(),
@@ -57,8 +58,8 @@ export const getTables = async (
  * @param detailEncoded The Base64 encoded detail string.
  * @returns A Promise containing the unpacked response data.
  */
-export const getTableDetails = async (detailEncoded: string): Promise<any> => {
-  const apiUrl = serviceEndpointHandler.normalize('api/entity/detail')
+export const getTableDetails = async (connectionId: string,detailEncoded: string): Promise<any> => {
+  const apiUrl = serviceEndpointHandler.normalize(`api/entity/${connectionId}/tables/detail`)
 
   const response = await fetch(`${apiUrl}?detailEncoded=${detailEncoded}`, {
     method: 'GET',

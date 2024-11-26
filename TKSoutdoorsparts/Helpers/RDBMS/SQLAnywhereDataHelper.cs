@@ -64,8 +64,6 @@ WHERE creator NOT IN ('SYS', 'dbo')
   AND table_type = 'BASE';");
     }
 
-
-
     public override System.Data.IDbConnection CreateConnection(string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))

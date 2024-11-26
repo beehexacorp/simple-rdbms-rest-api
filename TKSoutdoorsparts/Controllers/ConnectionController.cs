@@ -33,6 +33,13 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
         var connectionInfos = appSettings.GetConnectionInfos();
         return Ok(await Task.FromResult(connectionInfos.Select(connectionInfo => autoMapper.Map<ConnectionInfoViewModel>(connectionInfo))));
     }
+    [HttpGet("{connectionId}")]
+    public async Task<IActionResult> GetConnection(Guid connectionId)
+    {
+        var connectionInfo = appSettings.GetConnectionInfo(connectionId);
+        return Ok(await Task.FromResult(autoMapper.Map<ConnectionInfoViewModel>(connectionInfo)));
+    }
+
     [HttpPost("connect")]
     public async Task<IActionResult> TestConnection(
         [FromBody, Required] ConnectionInfoRequest req
@@ -48,7 +55,7 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
         return Ok();
     }
 
-    [HttpPost("connect-from-configs")]
+    [HttpPost("{connectionId}/connect")]
     public async Task<IActionResult> TestConnectionFromConfigs(Guid connectionId)
     {
         if (!ModelState.IsValid)

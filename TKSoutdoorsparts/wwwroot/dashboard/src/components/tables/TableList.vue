@@ -121,7 +121,9 @@ const loadConnections = async () => {
       }
     }
   } catch (error) {
-    $message.error(`Error fetching connections: ${error}`)
+    $message.error(
+      `Error fetching connections: Looks like you don't have any connections yet. Please setup a connection first.`,
+    )
   }
 }
 

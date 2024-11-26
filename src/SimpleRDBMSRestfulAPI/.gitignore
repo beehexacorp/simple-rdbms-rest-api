@@ -1,0 +1,17 @@
+**/bin
+/bin
+**/obj
+/obj
+**/.vs
+SimpleRDBMSRestfulAPI/obj/
+.vs
+.idea
+node_modules
+release
+dist
+
+**/node_modules
+**/release
+**/dist
+vite.config.ts.*.mjs
+credentials.enc

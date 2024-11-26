@@ -42,7 +42,7 @@ public class HistoryController(ILogger<HistoryController> logger) : ControllerBa
         var appDirectory = Directory.GetCurrentDirectory();
 
         // Construct the full path to the file
-        var filePath = Path.Combine(appDirectory, fileName);
+        var filePath = Path.Join(appDirectory, fileName);
 
         // Check if the file exists
         if (!System.IO.File.Exists(filePath))
@@ -68,7 +68,7 @@ public class HistoryController(ILogger<HistoryController> logger) : ControllerBa
         var appDirectory = Directory.GetCurrentDirectory();
 
         // Construct the full path to the file
-        var filePath = Path.Combine(appDirectory, fileName);
+        var filePath = Path.Join(appDirectory, fileName);
 
         // Check if the file exists
         if (!System.IO.File.Exists(filePath))

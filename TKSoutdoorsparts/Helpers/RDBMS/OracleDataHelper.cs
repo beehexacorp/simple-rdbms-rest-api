@@ -35,7 +35,11 @@ public class OracleDataHelper : BaseDataHelper
 
     public override System.Data.IDbConnection CreateConnection(string? connectionString = null)
     {
-        return new OdbcConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+        return new OdbcConnection(connectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)
@@ -98,12 +102,20 @@ public class OracleDataHelper : BaseDataHelper
         return "N/A";
     }
 
-    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    public override Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data)
     {
         throw new NotImplementedException();
     }

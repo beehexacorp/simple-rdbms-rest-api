@@ -33,9 +33,13 @@ public class MySqlDataHelper : BaseDataHelper
     }
 
 
-    public override System.Data.IDbConnection CreateConnection(string? connectionString = null)
+    public override System.Data.IDbConnection CreateConnection(string connectionString)
     {
-        return new SqlConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+        return new SqlConnection(connectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)
@@ -54,20 +58,22 @@ public class MySqlDataHelper : BaseDataHelper
         return new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(encryptedConnectionString.DecryptAES()).Port.ToString();
     }
 
-    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
-    {
-        throw new NotImplementedException();
-    }
-
-
     public override string GetUser(byte[] encryptedConnectionString)
     {
         return new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(encryptedConnectionString.DecryptAES()).UserID;
+    }
+
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    {
+        throw new NotImplementedException();
     }
 }

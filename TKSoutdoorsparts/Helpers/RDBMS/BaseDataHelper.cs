@@ -17,9 +17,10 @@ public abstract class BaseDataHelper : IDataHelper
     public abstract string BuildQuery(EntityRequestMetadata request);
     public abstract Task ConnectAsync(string connectionString);
 
-    public abstract IDbConnection CreateConnection(string? connectionString = null);
+    public abstract IDbConnection CreateConnection(string connectionString);
 
     public virtual async Task<IEnumerable<IDictionary<string, object>>> GetData(
+        Settings.ConnectionInfoDTO connectonInfo,
         string query,
         Dictionary<string, object>? @params
     )
@@ -30,7 +31,8 @@ public abstract class BaseDataHelper : IDataHelper
                 kvp.Value is JsonElement jsonElement ? ConvertJsonElement(jsonElement) : kvp.Value
         );
 
-        using IDbConnection connection = CreateConnection();
+        var connectionString = Convert.FromBase64String(connectonInfo.ConnectionString).DecryptAES();
+        using IDbConnection connection = CreateConnection(connectionString);
         var result = await connection.QueryAsync<dynamic>(query, convertedParams);
         var data = result.Cast<IDictionary<string, object>>().ToList();
         return data;
@@ -39,11 +41,20 @@ public abstract class BaseDataHelper : IDataHelper
     public abstract string GetDatabase(byte[] encryptedConnectionString);
     public abstract string GetHost(byte[] encryptedConnectionString);
     public abstract string GetPort(byte[] encryptedConnectionString);
-    public abstract Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data);
-
-    public abstract Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset);
-
     public abstract string GetUser(byte[] encryptedConnectionString);
+
+    public abstract Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data);
+
+    public abstract Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset);
+
 
 
     protected virtual object ConvertJsonElement(JsonElement jsonElement)

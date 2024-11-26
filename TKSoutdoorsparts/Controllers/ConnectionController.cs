@@ -30,8 +30,8 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
     [HttpGet()]
     public async Task<IActionResult> Get()
     {
-        var connectionInfo = appSettings.GetConnectionInfo();
-        return Ok(await Task.FromResult(autoMapper.Map<ConnectionInfoViewModel>(connectionInfo)));
+        var connectionInfos = appSettings.GetConnectionInfos();
+        return Ok(await Task.FromResult(connectionInfos.Select(connectionInfo => autoMapper.Map<ConnectionInfoViewModel>(connectionInfo))));
     }
     [HttpPost("connect")]
     public async Task<IActionResult> TestConnection(
@@ -49,14 +49,18 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
     }
 
     [HttpPost("connect-from-configs")]
-    public async Task<IActionResult> TestConnectionFromConfigs()
+    public async Task<IActionResult> TestConnectionFromConfigs(Guid connectionId)
     {
         if (!ModelState.IsValid)
         {
             return UnprocessableEntity(ModelState);
         }
 
-        var connectionConfig = appSettings.GetConnectionInfo();
+        var connectionConfig = appSettings.GetConnectionInfo(connectionId);
+        if (connectionConfig == null)
+        {
+            throw new Exception($"The connection {connectionId} does not exist.");
+        }
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectionConfig.DbType);
         await dbHelper.ConnectAsync(connectionConfig.GetConnectionString()!);
         return Ok();

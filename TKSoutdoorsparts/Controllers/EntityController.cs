@@ -18,26 +18,29 @@ namespace SimpleRDBMSRestfulAPI.Controllers;
 [ApiController]
 public class EntityController(IAppSettings appSettings, IServiceProvider serviceProvider, ISqlInjectionHelper sqlInjectionHelper) : ControllerBase
 {
-    [HttpGet()]
+    [HttpGet("{connectionId}/tables")]
     public async Task<IActionResult> GetTables(
+        [FromRoute] Guid connectionId,
         [FromQuery] CursorDirection rel = CursorDirection.Next,
         [FromQuery(Name = "q")] string? query = null,
         [FromQuery] string? cursor = null,
         [FromQuery] int limit = 100,
         [FromQuery] int offset = 0)
     {
-        var connectonInfo = appSettings.GetConnectionInfo();
+        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
         if (connectonInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var results = await dbHelper.GetTables(query, rel, cursor, limit, offset);
+        var results = await dbHelper.GetTables(connectonInfo, query, rel, cursor, limit, offset);
         return Ok(results);
     }
 
-    [HttpGet("detail")]
-    public async Task<IActionResult> GetDetail([FromQuery] string detailEncoded)
+    [HttpGet("{connectionId}/tables/detail")]
+    public async Task<IActionResult> GetDetail(
+        [FromRoute] Guid connectionId,
+        [FromQuery] string detailEncoded)
     {
         if (string.IsNullOrWhiteSpace(detailEncoded))
         {
@@ -50,14 +53,14 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         // Deserialize into a dictionary
         var data = JsonSerializer.Deserialize<IDictionary<string, object>>(jsonString);
 
-        var connectonInfo = appSettings.GetConnectionInfo();
+        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
         if (connectonInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
 
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var results = await dbHelper.GetTableFields(data);
+        var results = await dbHelper.GetTableFields(connectonInfo, data);
         // Return the parsed object
         return Ok(results);
     }
@@ -65,6 +68,7 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
     // /api/sql/query
     [HttpPost("query")]
     public async Task<IActionResult> GetData(
+        [FromRoute] Guid connectionId,
         [FromBody, Required] EntityRequestMetadata entityRequest
     )
     {
@@ -73,7 +77,7 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
             return UnprocessableEntity(ModelState);
         }
 
-        var connectonInfo = appSettings.GetConnectionInfo();
+        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
         if (connectonInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
@@ -84,7 +88,7 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         var decodedQuery = HttpUtility.UrlDecode(query);
         await sqlInjectionHelper.EnsureValid(decodedQuery);
 
-        var result = await dbHelper.GetData(query, entityRequest.@params);
+        var result = await dbHelper.GetData(connectonInfo, query, entityRequest.@params);
         return Ok(result);
     }
 }

@@ -21,7 +21,9 @@ public class SqlController(IAppSettings appSettings, IServiceProvider servicePro
 
     // /api/sql/query
     [HttpPost("query")]
-    public async Task<IActionResult> GetData([FromBody, Required] QueryRequestMetadata queryRequest)
+    public async Task<IActionResult> GetData(
+        [FromRoute] Guid connectionId,
+        [FromBody, Required] QueryRequestMetadata queryRequest)
     {
         if (!ModelState.IsValid)
         {
@@ -31,14 +33,14 @@ public class SqlController(IAppSettings appSettings, IServiceProvider servicePro
         var decodedQuery = HttpUtility.UrlDecode(queryRequest.Query);
         await sqlInjectionHelper.EnsureValid(decodedQuery);
 
-        var connectonInfo = appSettings.GetConnectionInfo();
+        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
         if (connectonInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
 
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var result = await dbHelper.GetData(decodedQuery, queryRequest.@params);
+        var result = await dbHelper.GetData(connectonInfo, decodedQuery, queryRequest.@params);
         return Ok(result);
     }
 }

@@ -1,7 +1,6 @@
 using System.Data.SqlClient;
 using Dapper;
 using SimpleRDBMSRestfulAPI.Constants;
-using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Core;
 using SimpleRDBMSRestfulAPI.Models;
 using SimpleRDBMSRestfulAPI.Settings;
@@ -37,7 +36,11 @@ ORDER BY TABLE_NAME;");
 
     public override System.Data.IDbConnection CreateConnection(string? connectionString = null)
     {
-        return new SqlConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+        return new SqlConnection(connectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)
@@ -84,12 +87,20 @@ ORDER BY TABLE_NAME;");
         return "1433"; // Default SQL Server port
     }
 
-    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    public override Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data)
     {
         throw new NotImplementedException();
     }

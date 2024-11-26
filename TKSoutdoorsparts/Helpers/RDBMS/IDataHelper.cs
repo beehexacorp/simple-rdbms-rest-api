@@ -10,6 +10,7 @@ public interface IDataHelper
     string BuildQuery(EntityRequestMetadata request);
     Task ConnectAsync(string connectionString);
     public Task<IEnumerable<IDictionary<string, object>>> GetData(
+        Settings.ConnectionInfoDTO connectonInfo,
         string query,
         Dictionary<string, object>? @params
     );
@@ -17,7 +18,15 @@ public interface IDataHelper
     string GetHost(byte[] encryptedConnectionString);
     string GetPort(byte[] encryptedConnectionString);
     string GetUser(byte[] encryptedConnectionString);
-    Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset);
-    Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data);
+    Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset);
+    Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data);
 
 }

@@ -70,7 +70,11 @@ LIMIT 1;");
 
     public override IDbConnection CreateConnection(string? connectionString = null)
     {
-        return new NpgsqlConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+        return new NpgsqlConnection(connectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)
@@ -91,7 +95,9 @@ LIMIT 1;");
         return builder.Port.ToString();
     }
 
-    public override async Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    public override async Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data)
     {
         if (data == null || !data.ContainsKey("table_catalog") || !data.ContainsKey("table_schema") || !data.ContainsKey("table_name"))
         {
@@ -100,7 +106,9 @@ LIMIT 1;");
         var tableCatalog = data["table_catalog"].ToString();
         var tableSchema = data["table_schema"].ToString();
         var tableName = data["table_name"].ToString();
-        using var conn = CreateConnection();
+
+        var connectionString = Convert.FromBase64String(connectonInfo.ConnectionString).DecryptAES();
+        using var conn = CreateConnection(connectionString);
         conn.Open();
         var sql = @"SELECT 
     column_name,
@@ -129,7 +137,13 @@ ORDER BY
     }
 
 
-    public override async Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    public override async Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset)
     {
         var sql = @"WITH filtered_tables AS (
     SELECT 
@@ -207,7 +221,8 @@ ORDER BY
 LIMIT @limit
 OFFSET @offset;
 ";
-        using var conn = CreateConnection();
+        var connectionString = Convert.FromBase64String(connectonInfo.ConnectionString).DecryptAES();
+        using var conn = CreateConnection(connectionString);
         conn.Open();
         var resp = await conn.QueryAsync(sql, new
         {

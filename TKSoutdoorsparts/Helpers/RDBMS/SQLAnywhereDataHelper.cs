@@ -32,8 +32,8 @@ public class SqlAnywhereDataHelper : BaseDataHelper
         {
             throw new ArgumentNullException("The @startAt param is required");
         }
-        var topValue = request.@params["top"];
-        var startAtValue = request.@params["startAt"];
+        var topValue = @params["top"];
+        var startAtValue = @params["startAt"];
         var fields =
             request.Fields != null && request.Fields.Any()
                 ? string.Join(", ", request.Fields)
@@ -65,9 +65,14 @@ WHERE creator NOT IN ('SYS', 'dbo')
     }
 
 
+
     public override System.Data.IDbConnection CreateConnection(string? connectionString)
     {
-        return new OdbcConnection(!string.IsNullOrWhiteSpace(connectionString) ? connectionString : _appSettings.GetConnectionString());
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+        return new OdbcConnection(connectionString);
     }
 
     public override string GetDatabase(byte[] encryptedConnectionString)
@@ -116,12 +121,20 @@ WHERE creator NOT IN ('SYS', 'dbo')
         return "N/A";
     }
 
-    public override Task<CursorBasedResult> GetTables(string? query, CursorDirection rel, string? cursor, int limit, int offset)
+    public override Task<CursorBasedResult> GetTables(
+        Settings.ConnectionInfoDTO connectonInfo,
+        string? query,
+        CursorDirection rel,
+        string? cursor,
+        int limit,
+        int offset)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(IDictionary<string, object>? data)
+    public override Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
+        Settings.ConnectionInfoDTO connectonInfo,
+        IDictionary<string, object>? data)
     {
         throw new NotImplementedException();
     }

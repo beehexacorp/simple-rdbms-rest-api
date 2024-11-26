@@ -1,9 +1,11 @@
 using SimpleRDBMSRestfulAPI.Constants;
+using System;
 
 namespace SimpleRDBMSRestfulAPI.Settings;
 
 public class ConnectionInfoDTO
 {
+    public Guid Id { get; set; }
     public DbType DbType { get; set; }
     public string ConnectionString { get; set; } = null!; // base64
 

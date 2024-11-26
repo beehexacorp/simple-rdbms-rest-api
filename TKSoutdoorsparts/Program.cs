@@ -19,7 +19,7 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Register the log
-var logPath = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
+var logPath = Path.Join(Directory.GetCurrentDirectory(), "log.txt");
 
 // Log by day
 Log.Logger = new LoggerConfiguration()
@@ -128,7 +128,7 @@ Log.Logger = new LoggerConfiguration()
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.WebRootPath, "dashboard", "dist")),
+        Path.Join(builder.Environment.WebRootPath, "dashboard", "dist")),
     RequestPath = "/dashboard"
 });
 
@@ -137,7 +137,7 @@ app.Map("/dashboard/favicon.ico", appBuilder =>
 {
     appBuilder.Run(async context =>
     {
-        var filePath = Path.Combine(builder.Environment.WebRootPath, "dashboard", "dist", "favicon.ico");
+        var filePath = Path.Join(builder.Environment.WebRootPath, "dashboard", "dist", "favicon.ico");
         if (System.IO.File.Exists(filePath))
         {
             context.Response.ContentType = "image/x-icon";

@@ -1,16 +1,46 @@
+
 # Simple RDBMS RESTful API
 
-## Overview
+## 1. Introduction & Purpose
+Simple RDBMS REST API provides a secure, scalable, and multi-tenant RESTful interface for interacting with relational database management systems (RDBMS) using standard HTTP methods and a HexaSync-defined Query DSL. Designed for SaaS vendors, enterprise IT, and integration partners, it enables seamless database operations with robust security and extensibility.
 
-* Simple RDBMS REST API project provides a RESTful interface to interact with a relational database management system (RDBMS) using standard HTTP methods and a specific HexaSync Defined Query DSL Language with high security support that prevent SQL Injection attacks.
-* The project currently supports (READ or QUERY operations) the following RDBMS systems:
-    * [PostgreSQL](/src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/PostgresDataHelper.cs)
-    * [SQLAnywhere](/src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/SQLAnywhereDataHelper.cs)
-* The API allows clients to perform CRUD (Create, Read, Update, Delete) operations on database tables through well-defined endpoints.
-* This API Application should be architectured as Multiple-Tenant SaaS application with robust security measures, including authentication and authorization mechanisms to ensure secure access to database resources.
-* The API should be designed for scalability and performance, capable of handling multiple concurrent requests efficiently.
-* The connection information provided by the clients must be securely stored using encryption techniques to protect sensitive data.
-* The API must authorize requests and ensure that clients can only access the database resources they are permitted to interact with.
-* The API endpoints should be well-documented, providing clear instructions on how to use the API effectively.
-* The API endpoints should be designed to handle errors gracefully, providing meaningful error messages and appropriate HTTP status codes in response to client requests and log the incidents for auditing and debugging purposes.
-  * The Logging Provider must be configurable to support different logging mechanisms (e.g., console, file, database, datadog, Hubspot Tickets, HexaSync Incident Service etc.) based on application settings.
+## 2. Supported RDBMS Systems
+- Currently supports:
+  - [PostgreSQL](/src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/PostgresDataHelper.cs)
+  - [SQLAnywhere](/src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/SQLAnywhereDataHelper.cs)
+- Roadmap: MySQL, Oracle, SQL Server, and more.
+
+## 3. API Features
+- **CRUD Operations:** Well-defined endpoints for Create, Read, Update, Delete.
+- **Query DSL:** HexaSync DSL for expressive, secure queries; prevents SQL injection.
+- **Multi-Tenancy:** Tenant isolation, data partitioning, onboarding workflow.
+
+## 4. Security
+- **Authentication:** Supports JWT, OAuth2, API keys.
+- **Authorization:** Role-based access, resource-level permissions.
+- **SQL Injection Prevention:** Input validation, parameterized queries, DSL enforcement.
+- **Data Encryption:** Encryption at-rest and in-transit; secure key management.
+
+## 5. Scalability & Performance
+- Handles multiple concurrent requests efficiently.
+- Implements rate limiting, connection pooling, and caching strategies.
+- Designed for load balancing and failover.
+
+## 6. Configuration & Extensibility
+- **Logging:** Configurable providers (console, file, database, Datadog, Hubspot, HexaSync Incident Service).
+- **Settings:** Environment-based configuration, secrets management.
+- **Extending RDBMS Support:** Adapter/plugin architecture for new databases.
+
+## 7. Error Handling & Auditing
+- Standardized error responses with meaningful messages and HTTP status codes.
+- Incident logging and audit trails; integration with external services.
+- Health checks, metrics, and alerting for monitoring.
+
+## 8. Documentation & Developer Experience
+- Comprehensive API documentation (Swagger/OpenAPI), code samples, and usage guides.
+- Quickstart onboarding and sandbox environment.
+- Support channels: community, ticketing, escalation.
+
+## 9. Roadmap & Future Enhancements
+- Planned features: Write operations, analytics endpoints, admin dashboard.
+- Community contributions: guidelines and governance.

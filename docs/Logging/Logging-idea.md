@@ -1,0 +1,1 @@
+-- send errors to HexaSync Activities.

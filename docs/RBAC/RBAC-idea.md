@@ -1,0 +1,2 @@
+-- intergrate HexaSync SSO
+-- sharing resouces

@@ -8,6 +8,29 @@
   - All operations use parameterized queries
   - Unit and integration tests cover all CRUD endpoints
 
+### Dev Agent Record
+#### Tasks / Subtasks
+- [x] Implement MSSQL CRUD logic in SQLServerDataHelper.cs
+- [ ] Ensure EntityController.cs and SqlController.cs route MSSQL requests
+- [ ] Validate frontend entityService.ts integration
+- [ ] Add/extend unit and integration tests for MSSQL CRUD endpoints
+- [ ] Run tests and verify acceptance criteria
+
+#### Debug Log
+- CRUD logic implemented in SQLServerDataHelper.cs using Dapper and parameterized queries.
+- EntityController.cs and SqlController.cs reviewed for MSSQL routing.
+- Frontend entityService.ts integration pending validation.
+- No test files found; recommend adding under src/SimpleRDBMSRestfulAPI/Tests/.
+
+#### Completion Notes
+- MSSQL CRUD logic implemented and ready for API routing and frontend validation.
+
+#### File List
+- src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/SQLServerDataHelper.cs
+- src/SimpleRDBMSRestfulAPI/Controllers/EntityController.cs
+- src/SimpleRDBMSRestfulAPI/Controllers/SqlController.cs
+- src/SimpleRDBMSRestfulAPI/wwwroot/dashboard/src/services/entityService.ts
+
 ---
 ## Story 2: HexaSync DSL Support for MSSQL Syntax
 **As a developer, I want the HexaSync Query DSL to support MSSQL-specific syntax so that I can write expressive and optimized queries for MSSQL.**
@@ -15,6 +38,28 @@
   - DSL supports MSSQL features (TOP, OUTPUT, identity columns)
   - Documentation is available for MSSQL DSL usage
   - DSL queries are validated and tested
+
+### Dev Agent Record
+#### Tasks / Subtasks
+- [ ] Extend HexaSync DSL parser to support MSSQL-specific syntax (TOP, OUTPUT, identity columns)
+- [ ] Update SQLServerDataHelper.cs to handle new DSL features
+- [ ] Write documentation for MSSQL DSL usage
+- [ ] Add/extend unit tests for DSL validation and MSSQL queries
+- [ ] Validate DSL queries against MSSQL
+
+#### Debug Log
+- HexaSync DSL parser requires extension for MSSQL features.
+- SQLServerDataHelper.cs will need updates for new DSL constructs.
+- Documentation and tests pending.
+
+#### Completion Notes
+- MSSQL DSL support planned; parser and helper updates required.
+
+#### File List
+- src/SimpleRDBMSRestfulAPI/Helpers/RDBMS/SQLServerDataHelper.cs
+- src/SimpleRDBMSRestfulAPI/Helpers/SqlInjectionHelper.cs
+- src/SimpleRDBMSRestfulAPI/Models/EntityRequestMetadata.cs
+- docs/MSSQL/MSSQL-DSL-usage.md (to be created)
 
 ---
 ## Story 3: Multi-Tenancy Isolation for MSSQL

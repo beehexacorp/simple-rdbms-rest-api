@@ -4,12 +4,14 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace SimpleRDBMSRestfulAPI.Settings;
+
 public class AppSettings : IAppSettings
 {
     private readonly string _credentialsPath = Path.Join(Directory.GetCurrentDirectory(), "credentials.enc");
     private static IEnumerable<ConnectionInfoDTO> _connectionInfos = new List<ConnectionInfoDTO>();
     public ConnectionInfoDTO? GetConnectionInfo(Guid connectionId)
     {
+        // TODO: create a database table (POSTGRESQL), and implement logics for user's connections registration and retrieval
         var connectionInfos = GetConnectionInfos();
         return connectionInfos?.FirstOrDefault(x => x.Id == connectionId);
     }

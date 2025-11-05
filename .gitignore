@@ -10,3 +10,16 @@ node_modules
 log*.txt
 
 *.enc
+
+.bmad*
+.claude
+.config
+.cursor
+.gemini
+.github/chatmodes
+.windsurf
+CLAUDE.md
+web-bundles
+**/*codebase.xml
+**/*codebase.stats.md
+!.bmad-flattenignore

@@ -11,7 +11,7 @@
 ### Dev Agent Record
 #### Tasks / Subtasks
 - [x] Implement MSSQL CRUD logic in SQLServerDataHelper.cs
-- [ ] Ensure EntityController.cs and SqlController.cs route MSSQL requests
+- [x] Ensure EntityController.cs and SqlController.cs route MSSQL requests
 - [ ] Validate frontend entityService.ts integration
 - [ ] Add/extend unit and integration tests for MSSQL CRUD endpoints
 - [ ] Run tests and verify acceptance criteria

@@ -78,25 +78,25 @@ FROM {request.TableName}
 
     public override string GetDatabase(byte[] encryptedConnectionString)
     {
-        var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
         return builder.InitialCatalog;
     }
 
     public override string GetHost(byte[] encryptedConnectionString)
     {
-        var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
         return ParseHost(builder.DataSource);
     }
 
     public override string GetPort(byte[] encryptedConnectionString)
     {
-        var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
         return ParsePort(builder.DataSource);
     }
 
     public override string GetUser(byte[] encryptedConnectionString)
     {
-        var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
+        var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(encryptedConnectionString.DecryptAES());
         return builder.UserID;
     }
 

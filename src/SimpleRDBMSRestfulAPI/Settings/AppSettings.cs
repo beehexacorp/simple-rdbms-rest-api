@@ -15,6 +15,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SimpleRDBMSRestfulAPI.Settings;
 
+// TODO: authenticate with HexaSync User. Treat this project as an External App, 
+// so we also need custom connector in Gateway, Worker. 
+// We also need to treat HexaSync SSO as a CONNECTOR.
+
 public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSettings
 {
     private readonly string _credentialsPath = Path.Join(Directory.GetCurrentDirectory(), "credentials.enc");
@@ -26,13 +30,12 @@ public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSetti
 
     public ConnectionInfoDTO? GetConnectionInfo(Guid connectionId)
     {
-        if (RunningMode == "MULTITENANT")
-        {
-            return GetMultitenantConnectionInfo(connectionId);
-        }
+        IEnumerable<ConnectionInfoDTO> connectionInfos =
+            RunningMode == "MULTITENANT"
+                ? GetAllMultitenantConnectionInfos()
+                : GetConnectionInfos() ?? Enumerable.Empty<ConnectionInfoDTO>();
 
-        var connectionInfos = GetConnectionInfos();
-        return connectionInfos?.FirstOrDefault(x => x.Id == connectionId);
+        return connectionInfos.FirstOrDefault(c => c.Id == connectionId);
     }
 
     public async Task<string?> GetConnectionString(Guid connectionId)
@@ -40,7 +43,7 @@ public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSetti
         return GetConnectionInfo(connectionId)?.GetConnectionString()!;
     }
 
-    public async Task<IEnumerable<ConnectionInfoDTO>> SaveConnectionAsync(DbType dbType, string connectionString)
+    public async Task<ConnectionInfoDTO> SaveConnectionAsync(DbType dbType, string connectionString)
     {
         var encryptedConnectionString = connectionString.EncryptAES();
 
@@ -58,14 +61,11 @@ public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSetti
             db.ConnectionInfo.Add(connectionInfo);
             await db.SaveChangesAsync();
 
-            return new List<ConnectionInfoDTO>
+            return new ConnectionInfoDTO
             {
-                new ConnectionInfoDTO
-                {
-                    Id = connectionInfo.Id,
-                    DbType = connectionInfo.DbType,
-                    ConnectionString = connectionInfo.ConnectionString
-                }
+                Id = connectionInfo.Id,
+                DbType = connectionInfo.DbType,
+                ConnectionString = connectionInfo.ConnectionString
             };
         }
 
@@ -83,28 +83,46 @@ public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSetti
             .Build();
         File.WriteAllText(_credentialsPath, serializer.Serialize(_connectionInfos));
         await Task.CompletedTask;
-        return _connectionInfos;
+        return connectionInfoDto;
     }
 
-    public ConnectionInfoDTO? GetMultitenantConnectionInfo(Guid connectionId)
+    public IEnumerable<ConnectionInfoDTO> GetAllMultitenantConnectionInfos()
     {
-        var db = _dbFactory.CreateDbContext<ApplicationDbContext>(DatabaseQueryType.DML_READ);
-
-        var connInfo = db.ConnectionInfo
-            .FirstOrDefault(x => x.Id == connectionId);
-
-        if (connInfo == null)
+        // Tạo DbContext với quyền đọc
+        using var db = _dbFactory.CreateDbContext<ApplicationDbContext>(DatabaseQueryType.DML_READ);
+        var connectionInfos = db.ConnectionInfo.ToList();
+        if (connectionInfos == null || !connectionInfos.Any())
         {
-            throw new Exception($"ConnectionInfo not found for Id {connectionId}");
+            return new List<ConnectionInfoDTO>();
         }
 
-        return new ConnectionInfoDTO
+        return connectionInfos.Select(connInfo => new ConnectionInfoDTO
         {
             Id = connInfo.Id,
             DbType = connInfo.DbType,
             ConnectionString = connInfo.ConnectionString
-        };
+        }).ToList();
     }
+
+    // public ConnectionInfoDTO? GetMultitenantConnectionInfo(Guid connectionId)
+    // {
+    //     var db = _dbFactory.CreateDbContext<ApplicationDbContext>(DatabaseQueryType.DML_READ);
+
+    //     var connInfo = db.ConnectionInfo
+    //         .FirstOrDefault(x => x.Id == connectionId);
+
+    //     if (connInfo == null)
+    //     {
+    //         throw new Exception($"ConnectionInfo not found for Id {connectionId}");
+    //     }
+
+    //     return new ConnectionInfoDTO
+    //     {
+    //         Id = connInfo.Id,
+    //         DbType = connInfo.DbType,
+    //         ConnectionString = connInfo.ConnectionString
+    //     };
+    // }
 
     public IEnumerable<ConnectionInfoDTO> GetConnectionInfos()
     {

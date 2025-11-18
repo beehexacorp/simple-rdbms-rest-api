@@ -27,12 +27,17 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
         return Ok(await Task.FromResult(Enum.GetValues<DbType>().ToDictionary(v => (int)v, v => v.ToString())));
     }
 
-    [HttpGet()]
-    public async Task<IActionResult> Get()
+    [HttpGet]
+    public IActionResult Get()
     {
-        var connectionInfos = appSettings.GetConnectionInfos();
-        return Ok(await Task.FromResult(connectionInfos.Select(connectionInfo => autoMapper.Map<ConnectionInfoViewModel>(connectionInfo))));
+        var connections = appSettings.RunningMode == "MULTITENANT"
+            ? appSettings.GetAllMultitenantConnectionInfos()
+            : appSettings.GetConnectionInfos() ?? Enumerable.Empty<ConnectionInfoDTO>();
+
+        var result = connections.Select(ci => autoMapper.Map<ConnectionInfoViewModel>(ci));
+        return Ok(result);
     }
+
     [HttpGet("{connectionId}")]
     public async Task<IActionResult> GetConnection(Guid connectionId)
     {
@@ -86,7 +91,7 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
         var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(req.DbType);
         await dbHelper.ConnectAsync(req.ConnectionString);
 
-        await appSettings.SaveConnectionAsync(req.DbType, req.ConnectionString);
-        return Ok();
+        var savedConnection = await appSettings.SaveConnectionAsync(req.DbType, req.ConnectionString);
+        return Ok(savedConnection);
     }
 }

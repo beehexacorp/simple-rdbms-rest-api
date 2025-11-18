@@ -77,3 +77,120 @@ export const getTableDetails = async (connectionId: string,detailEncoded: string
   const responseData = await response.arrayBuffer()
   return msgpack.decode(new Uint8Array(responseData))
 }
+
+/**
+ * Read records from table.
+ */
+export const readTableRecords = async (
+  connectionId: string,
+  tableName: string,
+  filters: Record<string, any> = {}
+): Promise<any> => {
+  const query = new URLSearchParams(filters as any).toString()
+  const apiUrl = serviceEndpointHandler.normalize(
+    `api/entity/${connectionId}/tables/${tableName}`
+  )
+
+  const response = await fetch(`${apiUrl}?${query}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json'
+    }
+  })
+
+  if (!response.ok) {
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
+  }
+
+  return await response.json()
+}
+
+/**
+ * Insert a new record into table.
+ */
+export const createRecord = async (
+  connectionId: string,
+  tableName: string,
+  data: Record<string, any>
+): Promise<any> => {
+  const apiUrl = serviceEndpointHandler.normalize(
+    `api/entity/${connectionId}/tables/${tableName}`
+  )
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+
+  if (!response.ok) {
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
+  }
+
+  return await response.json()
+}
+
+/**
+ * Update an existing record.
+ */
+export const updateRecord = async (
+  connectionId: string,
+  tableName: string,
+  data: Record<string, any>,
+  filters: Record<string, any> = {}
+): Promise<any> => {
+  const query = new URLSearchParams(filters as any).toString()
+
+  const apiUrl = serviceEndpointHandler.normalize(
+    `api/entity/${connectionId}/tables/${tableName}`
+  )
+
+  const response = await fetch(`${apiUrl}?${query}`, {
+    method: 'PUT',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+
+  if (!response.ok) {
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
+  }
+
+  return await response.json()
+}
+
+/**
+ * Delete records from table using filters.
+ */
+export const deleteRecord = async (
+  connectionId: string,
+  tableName: string,
+  filters: Record<string, any> = {}
+): Promise<any> => {
+  const query = new URLSearchParams(filters as any).toString()
+
+  const apiUrl = serviceEndpointHandler.normalize(
+    `api/entity/${connectionId}/tables/${tableName}`
+  )
+
+  const response = await fetch(`${apiUrl}?${query}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json'
+    }
+  })
+
+  if (!response.ok) {
+    const { errorMessage } = await response.json()
+    throw new Error(errorMessage)
+  }
+  return await response.json()
+}

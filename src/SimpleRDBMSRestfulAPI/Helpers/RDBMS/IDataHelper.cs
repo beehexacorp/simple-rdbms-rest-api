@@ -27,5 +27,22 @@ public interface IDataHelper
     Task<IEnumerable<IDictionary<string, object>>> GetTableFields(
         Settings.ConnectionInfoDTO connectonInfo,
         IDictionary<string, object>? data);
+    Task<IEnumerable<IDictionary<string, object>>> ReadRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object>? filters = null);
+    Task<IDictionary<string, object>> CreateRecord(
+        string connectionString, 
+        string tableName, 
+        IDictionary<string, object> data);
+    Task<IDictionary<string, object>> UpdateRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> data,
+        IDictionary<string, object> filters);
+    Task<IDictionary<string, object>> DeleteRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> filters);
 
 }

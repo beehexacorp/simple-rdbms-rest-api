@@ -1,10 +1,14 @@
 using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
+using SimpleRDBMSRestfulAPI.Settings;
+
 
 namespace SimpleRDBMSRestfulAPI.Libs;
 public static class MachineAESEncryptorExtensions
 {
+    public static IAppSettings? appSettings { get; set; }
+
     public static string GetMachineGuid()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -49,11 +53,19 @@ public static class MachineAESEncryptorExtensions
 
     public static byte[] EncryptAES(this string plainText)
     {
+        if (appSettings != null && appSettings.RunningMode == "MULTITENANT")
+        {
+            return plainText.EncryptAES(appSettings.EncryptionKey);
+        }
         return plainText.EncryptAES(GetMachineGuid());
     }
 
     public static string DecryptAES(this byte[] cipher)
     {
+        if (appSettings != null && appSettings.RunningMode == "MULTITENANT")
+        {
+            return cipher.DecryptAES(appSettings.EncryptionKey);
+        }
         return cipher.DecryptAES(GetMachineGuid());
     }
 

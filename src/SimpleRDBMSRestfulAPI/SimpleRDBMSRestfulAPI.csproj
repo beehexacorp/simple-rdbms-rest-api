@@ -8,30 +8,54 @@
     
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     
-    <PackageReference Include="MessagePack" Version="2.5.187" />
+    <PackageReference Include="Azure.Identity" Version="1.17.0" />
+    
+    <PackageReference Include="hexasync.common" Version="1.8.14" />
+    
+    <PackageReference Include="hexasync.domain.cluster_management" Version="1.8.14" />
+    
+    <PackageReference Include="HexaSync.Domain.Managers" Version="1.8.14" />
+    
+    <PackageReference Include="HexaSync.Infrastructure.DotNetEnv" Version="1.8.14" />
+    
+    <PackageReference Include="hexasync.libs.fixtures" Version="1.8.14" />
+    
+    <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="MessagePack.AspNetCoreMvcFormatter" Version="2.5.172" />
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 
-    <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="MySql.Data" Version="9.1.0" />
-    <PackageReference Include="Npgsql" Version="8.0.3" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
 
     
-    <PackageReference Include="Serilog" Version="4.1.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
-    <PackageReference Include="YamlDotNet" Version="16.2.0" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+
+    
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    
+    <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
   
   <ItemGroup>

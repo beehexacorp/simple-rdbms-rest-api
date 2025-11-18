@@ -55,7 +55,24 @@ public abstract class BaseDataHelper : IDataHelper
         int limit,
         int offset);
 
+    public abstract Task<IEnumerable<IDictionary<string, object>>>  ReadRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object>? filters = null);
 
+    public abstract Task<IDictionary<string, object>> CreateRecord(
+        string connectionString, 
+        string tableName, 
+        IDictionary<string, object> data);
+    public abstract Task<IDictionary<string, object>> UpdateRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> data,
+        IDictionary<string, object> filters);
+    public abstract Task<IDictionary<string, object>> DeleteRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> filters);
 
     protected virtual object ConvertJsonElement(JsonElement jsonElement)
     {

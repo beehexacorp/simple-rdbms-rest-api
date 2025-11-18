@@ -6,6 +6,9 @@ public interface IAppSettings
 {
     public ConnectionInfoDTO? GetConnectionInfo(Guid connectionId);
     public IEnumerable<ConnectionInfoDTO> GetConnectionInfos();
-    string GetConnectionString(Guid connectionId);
-    Task<IEnumerable<ConnectionInfoDTO>> SaveConnectionAsync(DbType dbType, string connectionString);
+    public IEnumerable<ConnectionInfoDTO> GetAllMultitenantConnectionInfos();
+    Task<string?> GetConnectionString(Guid connectionId);
+    Task<ConnectionInfoDTO> SaveConnectionAsync(DbType dbType, string connectionString);
+    string RunningMode { get; }
+    string EncryptionKey { get; }
 }

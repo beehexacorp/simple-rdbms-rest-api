@@ -103,27 +103,7 @@ public class AppSettings(IDbFactory dbFactory, IEnvReader envReader) : IAppSetti
             ConnectionString = connInfo.ConnectionString
         }).ToList();
     }
-
-    // public ConnectionInfoDTO? GetMultitenantConnectionInfo(Guid connectionId)
-    // {
-    //     var db = _dbFactory.CreateDbContext<ApplicationDbContext>(DatabaseQueryType.DML_READ);
-
-    //     var connInfo = db.ConnectionInfo
-    //         .FirstOrDefault(x => x.Id == connectionId);
-
-    //     if (connInfo == null)
-    //     {
-    //         throw new Exception($"ConnectionInfo not found for Id {connectionId}");
-    //     }
-
-    //     return new ConnectionInfoDTO
-    //     {
-    //         Id = connInfo.Id,
-    //         DbType = connInfo.DbType,
-    //         ConnectionString = connInfo.ConnectionString
-    //     };
-    // }
-
+    
     public IEnumerable<ConnectionInfoDTO> GetConnectionInfos()
     {
         if (_connectionInfos != null && _connectionInfos.Any())

@@ -192,5 +192,3 @@ export const deleteRecord = async (
     const { errorMessage } = await response.json()
     throw new Error(errorMessage)
   }
-
-  r

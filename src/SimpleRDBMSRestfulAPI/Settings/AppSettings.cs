@@ -8,7 +8,6 @@ using hexasync.infrastructure.dotnetenv;
 using System.Threading;
 using System.Threading.Tasks;
 using hexasync.common;
-using hexasync.domain.managers;
 using Microsoft.Extensions.Logging;
 using hexasync.domain.profile.models;
 using hexasync.domain.cluster_management.DTO;

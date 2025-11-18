@@ -8,6 +8,7 @@ using SimpleRDBMSRestfulAPI.Settings;
 using System.Text;
 using System.Text.Json;
 using System.Dynamic;
+using System.Text.RegularExpressions;
 
 namespace SimpleRDBMSRestfulAPI.Helpers;
 
@@ -210,10 +211,9 @@ FROM {request.TableName}
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentNullException(nameof(connectionString));
-        if (string.IsNullOrWhiteSpace(tableName))
-            throw new ArgumentNullException(nameof(tableName));
         if (data == null || data.Count == 0)
             throw new ArgumentException("Data dictionary cannot be empty.", nameof(data));
+        ValidateTableName(tableName);
 
         var keys = data.Keys.ToList();
         var columns = string.Join(", ", keys.Select(k => $"[{k}]"));
@@ -238,9 +238,7 @@ FROM {request.TableName}
         string tableName,
         IDictionary<string, object>? filters = null)
     {
-        if (string.IsNullOrWhiteSpace(tableName))
-            throw new ArgumentNullException(nameof(tableName));
-
+        ValidateTableName(tableName);
         // Add WHERE clause if filters exist
         DynamicParameters parameters = new DynamicParameters();
 
@@ -264,10 +262,11 @@ FROM {request.TableName}
         IDictionary<string, object> data,
         IDictionary<string, object> filters)
     {
+        ValidateTableName(tableName);
         if (data == null || data.Count == 0)
             throw new ArgumentException("Data dictionary cannot be empty.", nameof(data));
         if (filters == null || filters.Count == 0)
-        throw new ArgumentException("Filters cannot be empty for DELETE.", nameof(filters));
+        throw new ArgumentException("Filters cannot be empty for UPDATE.", nameof(filters));
 
         var parameters = PrepareParams(data);
         var whereClause = BuildWhereClause(filters, parameters);
@@ -292,7 +291,7 @@ FROM {request.TableName}
         string tableName,
         IDictionary<string, object> filters)
     {
-
+        ValidateTableName(tableName);
         if (filters == null || filters.Count == 0)
         throw new ArgumentException("Filters cannot be empty for DELETE.", nameof(filters));
 
@@ -324,7 +323,7 @@ FROM {request.TableName}
                 value = e.ValueKind switch
                 {
                     JsonValueKind.String => e.GetString(),
-                    JsonValueKind.Number => e.TryGetInt64(out var l) ? l : e.TryGetDouble(out var d) ? d : 0,
+                    JsonValueKind.Number => e.TryGetInt64(out var l) ? l : e.TryGetDouble(out var d) ? d : (object?)null,
                     JsonValueKind.True => true,
                     JsonValueKind.False => false,
                     JsonValueKind.Null or JsonValueKind.Undefined => null,
@@ -363,5 +362,18 @@ FROM {request.TableName}
         }
 
         return " WHERE " + string.Join(" AND ", whereClauses);
+    }
+
+    /// <summary>
+    /// Validates that the provided table name is safe and matches the pattern for valid SQL Server identifiers.
+    /// Throws ArgumentException if invalid.
+    /// </summary>
+    private static void ValidateTableName(string tableName)
+    {
+        if (string.IsNullOrWhiteSpace(tableName))
+            throw new ArgumentNullException(nameof(tableName));
+        // Only allow alphanumeric and underscore, and must start with a letter or underscore.
+        if (!Regex.IsMatch(tableName, @"^[A-Za-z_][A-Za-z0-9_]*$"))
+            throw new ArgumentException("Invalid table name.", nameof(tableName));
     }
 }

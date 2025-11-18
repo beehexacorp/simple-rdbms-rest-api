@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Dapper;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using SimpleRDBMSRestfulAPI.Constants;
@@ -27,13 +28,13 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         [FromQuery] int limit = 100,
         [FromQuery] int offset = 0)
     {
-        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
-        if (connectonInfo?.ConnectionString == null)
+        var connectionInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connectionInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
-        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var results = await dbHelper.GetTables(connectonInfo, query, rel, cursor, limit, offset);
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectionInfo.DbType);
+        var results = await dbHelper.GetTables(connectionInfo, query, rel, cursor, limit, offset);
         return Ok(results);
     }
 
@@ -53,14 +54,14 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
         // Deserialize into a dictionary
         var data = JsonSerializer.Deserialize<IDictionary<string, object>>(jsonString);
 
-        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
-        if (connectonInfo?.ConnectionString == null)
+        var connectionInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connectionInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
 
-        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
-        var results = await dbHelper.GetTableFields(connectonInfo, data);
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectionInfo.DbType);
+        var results = await dbHelper.GetTableFields(connectionInfo, data);
         // Return the parsed object
         return Ok(results);
     }
@@ -77,18 +78,121 @@ public class EntityController(IAppSettings appSettings, IServiceProvider service
             return UnprocessableEntity(ModelState);
         }
 
-        var connectonInfo = appSettings.GetConnectionInfo(connectionId);
-        if (connectonInfo?.ConnectionString == null)
+        var connectionInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connectionInfo?.ConnectionString == null)
         {
             throw new Exception("Please ask the API Owner to configure the database connection.");
         }
-        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectonInfo.DbType);
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connectionInfo.DbType);
         var queryData = dbHelper.BuildQuery(entityRequest);
 
         queryData.query = HttpUtility.UrlDecode(queryData.query);
         await sqlInjectionHelper.EnsureValid(queryData.query);
 
-        var result = await dbHelper.GetData(connectonInfo, queryData);
+        var result = await dbHelper.GetData(connectionInfo, queryData);
         return Ok(result);
+    }
+
+    // -----------------------------
+    // CRUD: READ
+    // -----------------------------
+    [HttpGet("{connectionId}/tables/{tableName}")]
+    public async Task<IActionResult> Read(
+    [FromRoute] Guid connectionId,
+    [FromRoute] string tableName)
+    {
+        var connInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connInfo?.ConnectionString == null)
+            throw new Exception("Database not configured.");
+
+        // Parse query string to Dictionary<string, object>
+        var filters = HttpContext.Request.Query
+            .ToDictionary(kv => kv.Key, kv => (object)kv.Value.ToString());
+
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connInfo.DbType);
+        var rows = await dbHelper.ReadRecord(connInfo.ConnectionString, tableName, filters);
+
+        return Ok(rows);
+    }
+
+
+    // -----------------------------
+    // CRUD: CREATE (Insert)
+    // -----------------------------
+    [HttpPost("{connectionId}/tables/{tableName}")]
+    public async Task<IActionResult> Create(
+        [FromRoute] Guid connectionId,
+        [FromRoute] string tableName,
+        [FromBody] Dictionary<string, object> body)
+    {
+        if (body == null || body.Count == 0)
+            return BadRequest("Request body cannot be empty.");
+
+        var connInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connInfo?.ConnectionString == null)
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connInfo.DbType);
+
+        var result = await dbHelper.CreateRecord(connInfo.ConnectionString, tableName, body);
+        return Ok((IDictionary<string, object>)result);
+    }
+
+    // -----------------------------
+    // CRUD: UPDATE 
+    // -----------------------------
+    [HttpPut("{connectionId}/tables/{tableName}")]
+    public async Task<IActionResult> Update(
+    [FromRoute] Guid connectionId,
+    [FromRoute] string tableName,
+    [FromBody] Dictionary<string, object> body)
+    {
+        if (body == null || body.Count == 0)
+            return BadRequest("Request body cannot be empty.");
+
+        var connInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connInfo?.ConnectionString == null)
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connInfo.DbType);
+
+        var filters = HttpContext.Request.Query
+            .ToDictionary(kv => kv.Key, kv => (object)kv.Value.ToString());
+
+        // Call the SQLServerDataHelper's Update method
+        var updatedRecord = await dbHelper.UpdateRecord(
+            connInfo.ConnectionString,
+            tableName,
+            body,
+            filters
+        );
+
+        return Ok((IDictionary<string, object>)updatedRecord);
+    }
+
+    // -----------------------------
+    // CRUD: DELETE 
+    // -----------------------------
+    [HttpDelete("{connectionId}/tables/{tableName}")]
+    public async Task<IActionResult> Delete(
+    [FromRoute] Guid connectionId,
+    [FromRoute] string tableName)
+    {
+        var connInfo = appSettings.GetConnectionInfo(connectionId);
+        if (connInfo?.ConnectionString == null)
+            throw new Exception("Please ask the API Owner to configure the database connection.");
+
+        var dbHelper = serviceProvider.GetRequiredKeyedService<IDataHelper>(connInfo.DbType);
+        var filters = HttpContext.Request.Query
+            .ToDictionary(kv => kv.Key, kv => (object)kv.Value.ToString());
+
+        // Call the SQLServerDataHelper's Delete method
+        var deletedRecord = await dbHelper.DeleteRecord(
+        connInfo.ConnectionString,
+        tableName,
+        filters
+    );
+
+        return Ok((IDictionary<string, object>)deletedRecord);
     }
 }

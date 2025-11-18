@@ -249,4 +249,36 @@ OFFSET @offset;
         return builder.Username ?? "N/A";
     }
 
+    public override async Task<IDictionary<string, object>> CreateRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override async Task<IEnumerable<IDictionary<string, object>>> ReadRecord(
+        string connectionStringBase64,
+        string tableName,
+        IDictionary<string, object>? filters = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override async Task<IDictionary<string, object>> UpdateRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> data,
+        IDictionary<string, object> filters)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override async Task<IDictionary<string, object>> DeleteRecord(
+        string connectionString,
+        string tableName,
+        IDictionary<string, object> filters)
+    {
+        throw new NotImplementedException();
+    }
 }

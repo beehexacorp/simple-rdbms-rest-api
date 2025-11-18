@@ -8,12 +8,17 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 using SimpleRDBMSRestfulAPI;
-using SimpleRDBMSRestfulAPI.Constants;
 using SimpleRDBMSRestfulAPI.Helpers;
 using SimpleRDBMSRestfulAPI.Libs;
 using SimpleRDBMSRestfulAPI.Middleware;
 using SimpleRDBMSRestfulAPI.Settings;
-using SimpleRDBMSRestfulAPI.Libs;
+using hexasync.infrastructure.dotnetenv;
+using hexasync.domain.managers;
+using System.Data;
+using MyDbType = SimpleRDBMSRestfulAPI.Constants.DbType;
+using Microsoft.EntityFrameworkCore;
+using hexasync.libs.fixtures;
+using SimpleRDBMSRestfulAPI.Fixtures;
 
 DotNetEnv.Env.Load();
 
@@ -74,11 +79,11 @@ builder.Services.AddSingleton<MySqlDataHelper>();
 builder.Services.AddSingleton<PostgresDataHelper>();
 builder.Services.AddSingleton<ISqlInjectionHelper, SqlInjectionHelper>();
 
-builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(DbType.SQL_ANYWHERE);
-builder.Services.AddKeyedTransient<IDataHelper, SqlServerDataHelper>(DbType.SQL_SERVER);
-builder.Services.AddKeyedTransient<IDataHelper, OracleDataHelper>(DbType.ORACLE);
-builder.Services.AddKeyedTransient<IDataHelper, MySqlDataHelper>(DbType.MYSQL);
-builder.Services.AddKeyedTransient<IDataHelper, PostgresDataHelper>(DbType.POSTGRES);
+builder.Services.AddKeyedTransient<IDataHelper, SqlAnywhereDataHelper>(MyDbType.SQL_ANYWHERE);
+builder.Services.AddKeyedTransient<IDataHelper, SqlServerDataHelper>(MyDbType.SQL_SERVER);
+builder.Services.AddKeyedTransient<IDataHelper, OracleDataHelper>(MyDbType.ORACLE);
+builder.Services.AddKeyedTransient<IDataHelper, MySqlDataHelper>(MyDbType.MYSQL);
+builder.Services.AddKeyedTransient<IDataHelper, PostgresDataHelper>(MyDbType.POSTGRES);
 
 if (OperatingSystem.IsWindows())
 {
@@ -116,7 +121,32 @@ builder.Services.AddSingleton(provider =>
     return mapper;
 });
 
+builder.Services.AddSingleton<IEnvReader, EnvReader>();
+builder.Services.AddSingleton<IConnectionStringReader, ConnectionStringReader>();
+builder.Services.AddSingleton<DbFactory>();
+builder.Services.AddSingleton<IDbFactory, DbFactory>();
+
+builder.Services.AddDbContext<ApplicationDbContext>((p, o) =>
+                {
+                    var connectionStringReader = p.GetService<IConnectionStringReader>();
+                    if (connectionStringReader == null)
+                    {
+                        throw new NoNullAllowedException($"Service ConnectionStringReader is not registered");
+                    }
+                    var loggerFactory = p.GetService<ILoggerFactory>();
+                    o.UseLoggerFactory(loggerFactory);
+                    o.EnableSensitiveDataLogging();
+                    o.EnableDetailedErrors();
+                    o.UseNpgsql(connectionStringReader.GetConnectionString(true), b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+                }, ServiceLifetime.Transient);
+builder.Services.AddTransient<IFixture, DbMigrateFixture>();
+
 var app = builder.Build();
+
+// Resolve AppSettings from DI
+var appSettings = app.Services.GetRequiredService<IAppSettings>();
+MachineAESEncryptorExtensions.appSettings = appSettings;
+
 
 // Log by day
 Log.Logger = new LoggerConfiguration()
@@ -215,4 +245,28 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// ------------------------------------------------------
+// ✔ RUN FIXTURES USING REAL SCOPE — no BuildServiceProvider()
+// ------------------------------------------------------
+
+using (var scope = app.Services.CreateScope())
+{
+    var provider = scope.ServiceProvider;
+
+    var fixtures = provider.GetServices<IFixture>()
+        .OrderBy(f =>
+        {
+            var attr = f.GetType()
+                .GetCustomAttributes(typeof(PriorityAttribute), true)
+                .FirstOrDefault() as PriorityAttribute;
+            return attr?.Priority ?? 10000;
+        });
+
+    foreach (var fixture in fixtures)
+    {
+        await fixture.Configure(CancellationToken.None);
+    }
+}
+
 app.Run();
+

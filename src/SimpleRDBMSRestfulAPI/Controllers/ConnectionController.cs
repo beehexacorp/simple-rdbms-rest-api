@@ -33,6 +33,7 @@ public class ConnectionController(IMapper autoMapper, IAppSettings appSettings, 
         var connectionInfos = appSettings.GetConnectionInfos();
         return Ok(await Task.FromResult(connectionInfos.Select(connectionInfo => autoMapper.Map<ConnectionInfoViewModel>(connectionInfo))));
     }
+    
     [HttpGet("{connectionId}")]
     public async Task<IActionResult> GetConnection(Guid connectionId)
     {

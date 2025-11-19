@@ -28,14 +28,14 @@ jobs:
 
     - name: Create .env.production for Vite
       run: |
-        cat > ClientApp/.env.production <<EOF
+        cat > src/SimpleRDBMSRestfulAPI/wwwroot/dashboard/.env.production <<EOF
         VITE_NOTIFICATION_HUB_URL=http://localhost:5000
         VITE_PORT=3002
         VITE_BASE=/dashboard/
         EOF
 
     - name: Show env file
-      run: cat ClientApp/.env.production
+      run: cat src/SimpleRDBMSRestfulAPI/wwwroot/dashboard/.env.production
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -68,6 +68,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        file: .dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

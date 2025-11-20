@@ -41,16 +41,16 @@ builder.Logging.AddSerilog();
 
 builder.Services.AddSignalR(); // Add SignalR services
 
-// Get dynamic port from arguments, environment variables, or use a default value
-var port = args.Length > 0 ? args[0] :
-           Environment.GetEnvironmentVariable("PORT") ??
-           builder.Configuration["Kestrel:Port"] ?? "5000";
-// Configure Kestrel to use the dynamic port
-builder.WebHost.ConfigureKestrel(options =>
-{
-    Log.Logger.Information(@$"Listening to http(s)://localhost:{port}");
-    options.ListenLocalhost(int.Parse(port)); // Bind to the specified port
-});
+// // Get dynamic port from arguments, environment variables, or use a default value
+// var port = args.Length > 0 ? args[0] :
+//            Environment.GetEnvironmentVariable("PORT") ??
+//            builder.Configuration["Kestrel:Port"] ?? "5000";
+// // Configure Kestrel to use the dynamic port
+// builder.WebHost.ConfigureKestrel(options =>
+// {
+//     Log.Logger.Information(@$"Listening to http(s)://localhost:{port}");
+//     options.ListenLocalhost(int.Parse(port)); // Bind to the specified port
+// });
 
 builder.WebHost.UseIISIntegration();
 

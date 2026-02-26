@@ -10,15 +10,15 @@
     
     <PackageReference Include="Azure.Identity" Version="1.17.0" />
     
-    <PackageReference Include="hexasync.common" Version="1.8.14" />
+    <PackageReference Include="hexasync.common" Version="1.8.25" />
     
-    <PackageReference Include="hexasync.domain.cluster_management" Version="1.8.14" />
+    <PackageReference Include="hexasync.domain.cluster_management" Version="1.8.25" />
     
-    <PackageReference Include="HexaSync.Domain.Managers" Version="1.8.14" />
+    <PackageReference Include="HexaSync.Domain.Managers" Version="1.8.25" />
     
-    <PackageReference Include="HexaSync.Infrastructure.DotNetEnv" Version="1.8.14" />
+    <PackageReference Include="HexaSync.Infrastructure.DotNetEnv" Version="1.8.25" />
     
-    <PackageReference Include="hexasync.libs.fixtures" Version="1.8.14" />
+    <PackageReference Include="hexasync.libs.fixtures" Version="1.8.25" />
     
     <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="MessagePack.AspNetCoreMvcFormatter" Version="2.5.172" />
@@ -32,7 +32,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MySql.Data" Version="9.1.0" />
-    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="Npgsql" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />

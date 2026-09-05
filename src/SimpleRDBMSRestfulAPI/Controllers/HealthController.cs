@@ -61,59 +61,14 @@ public class HealthController(IDbFactory dbFactory, ILogger<HealthController> lo
             service = ServiceName
         });
     }
-
-    /// <summary>
-    /// Readiness. 200 when the service's own database is reachable, 503 when it
-    /// is not. Never 500: an unreachable database is an expected answer here.
-    /// </summary>
-    [HttpGet("ready")]
-    public async Task<IActionResult> GetReadiness(CancellationToken cancellationToken)
-    {
-        var checks = new Dictionary<string, object>();
-
-        var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutCts.CancelAfter(DatabaseProbeTimeout);
-
-        // Task.Run so that nothing runs synchronously on the request path: an
-        // async method still executes up to its first await on the caller's
-        // thread, and a stalled DNS lookup there would blow straight through the
-        // ceiling below. Off the request path, the ceiling always holds.
-        var probeTask = Task.Run(() => ProbeDatabaseAsync(timeoutCts.Token), CancellationToken.None);
-
-        // Dispose only once the probe has actually finished. A probe abandoned by
-        // the race below still holds the linked token, and disposing the source
-        // underneath it would throw ObjectDisposedException inside the driver.
-        _ = probeTask.ContinueWith(finished => timeoutCts.Dispose(), TaskScheduler.Default);
-
-        // Race the probe against a timer as well as cancelling it: a driver that
-        // ignores the token must still never hold the probe past the ceiling.
-        var timeoutTask = Task.Delay(DatabaseProbeTimeout, CancellationToken.None);
-        var timedOut = await Task.WhenAny(probeTask, timeoutTask) != probeTask;
-        var (databaseReady, databaseError) = timedOut ? (false, "timeout") : await probeTask;
-
-        checks["database"] = databaseReady;
-        if (databaseError is not null)
-        {
-            checks["database_error"] = databaseError;
-        }
-
-        if (!databaseReady)
-        {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
-            {
-                status = "not_ready",
-                service = ServiceName,
-                checks
-            });
-        }
-
-        return Ok(new
-        {
-            status = "ready",
-            service = ServiceName,
-            checks
-        });
-    }
+    // READINESS DEFERRED estate-wide. Note for whoever re-adds it: this service is the
+    // LEAST questionable case for a dependency gate -- it exists to expose its own
+    // database over REST, so without that database it can serve nothing, and the
+    // database is its own rather than shared estate infrastructure. It was removed for
+    // consistency while the per-service gating decision is made, not because the check
+    // was wrong. Elsewhere readiness gated on the SHARED redis-cluster-leader and
+    // Redpanda that nine bhs01 containers all point at, where one blip would empty
+    // nine Services at once.
 
     /// <summary>
     /// Opens the service's own metadata database and confirms it answers. Uses
